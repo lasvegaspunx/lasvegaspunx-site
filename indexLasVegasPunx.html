@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Las Vegas Punx — Las Vegas Punk Rock Show Calendar</title>
+<meta name="description" content="The ultimate digital hub for the Las Vegas punk rock scene. Show calendar, weekly listings, and local punk news from the 702.">
+
+<!-- Open Graph -->
+<meta property="og:title" content="Las Vegas Punx">
+<meta property="og:description" content="Las Vegas Punk Rock Show Calendar & Local Music News">
+<meta property="og:type" content="website">
+
+<!-- Fonts: free Google Fonts that approximate Dark London / Almaq Rough / P22 Typewriter -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Anton&family=Special+Elite&family=Bungee+Shade&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --black: #000000;
+    --white: #ffffff;
+    --orange: #EB6A00;
+    --lime: #9DEB00;
+    --cyan: #00C8EB;
+    --paper: #f0ebe0;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--black);
+    color: var(--white);
+    font-family: 'Special Elite', 'Courier New', monospace;
+    font-size: 16px;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  /* Halftone/noise overlay on body for grit */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0.06;
+    background-image:
+      radial-gradient(circle at 1px 1px, var(--white) 1px, transparent 0);
+    background-size: 3px 3px;
+  }
+
+  /* ==================== HEADER ==================== */
+  header {
+    padding: 40px 20px 30px;
+    text-align: center;
+    border-bottom: 4px solid var(--orange);
+    position: relative;
+    z-index: 2;
+  }
+
+  .logo {
+    display: inline-block;
+    font-family: 'Bungee', sans-serif;
+    font-size: clamp(48px, 9vw, 110px);
+    line-height: 0.85;
+    letter-spacing: 0.02em;
+    color: var(--white);
+    text-transform: uppercase;
+  }
+
+  /* Each word becomes "ransom note" cut-paper boxes */
+  .logo .word {
+    display: inline-block;
+    margin: 4px 2px;
+  }
+
+  .logo .letter {
+    display: inline-block;
+    background: var(--white);
+    color: var(--black);
+    padding: 2px 6px 0px;
+    margin: 0 -2px;
+    transform: rotate(var(--r));
+    box-shadow: 2px 2px 0 rgba(0,0,0,0.4);
+  }
+
+  .logo .letter:nth-child(odd) { --r: -2deg; }
+  .logo .letter:nth-child(even) { --r: 1.5deg; }
+  .logo .letter:nth-child(3n) { --r: -1deg; }
+  .logo .letter:nth-child(4n) { --r: 2deg; }
+
+  .tagline {
+    margin-top: 18px;
+    font-family: 'Special Elite', monospace;
+    font-size: 13px;
+    color: var(--white);
+    background: var(--black);
+    display: inline-block;
+    padding: 4px 10px;
+    border: 1px solid var(--white);
+  }
+
+  /* ==================== NAV ==================== */
+  nav {
+    background: var(--black);
+    border-bottom: 2px solid var(--white);
+    padding: 14px 20px;
+    text-align: center;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  nav a {
+    display: inline-block;
+    color: var(--white);
+    text-decoration: none;
+    font-family: 'Anton', sans-serif;
+    font-size: 18px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 6px 14px;
+    margin: 4px 2px;
+    background: var(--black);
+    border: 2px solid var(--white);
+    transition: all 0.15s ease;
+  }
+
+  nav a:hover {
+    background: var(--orange);
+    color: var(--black);
+    border-color: var(--orange);
+    transform: rotate(-1.5deg) scale(1.05);
+  }
+
+  /* ==================== SECTIONS ==================== */
+  main {
+    position: relative;
+    z-index: 2;
+  }
+
+  section {
+    padding: 60px 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+    position: relative;
+  }
+
+  /* Section headers — orange torn-banner look */
+  .section-header {
+    display: inline-block;
+    background: var(--orange);
+    padding: 12px 28px 10px;
+    margin-bottom: 32px;
+    transform: rotate(-1.5deg);
+    box-shadow: 4px 4px 0 var(--black), 4px 4px 0 1px var(--white);
+    position: relative;
+  }
+
+  .section-header h2 {
+    font-family: 'Bungee', sans-serif;
+    font-size: clamp(28px, 5vw, 48px);
+    color: var(--black);
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    line-height: 1;
+  }
+
+  /* Gritty section header alternate */
+  .section-header.lime { background: var(--lime); }
+  .section-header.cyan { background: var(--cyan); }
+  .section-header.white { background: var(--white); }
+
+  /* ==================== ABOUT ==================== */
+  #about {
+    background: var(--black);
+  }
+
+  .about-content {
+    max-width: 760px;
+  }
+
+  .about-content p {
+    font-family: 'Special Elite', monospace;
+    font-size: 17px;
+    line-height: 1.7;
+    margin-bottom: 18px;
+    color: var(--white);
+  }
+
+  .about-content a {
+    color: var(--orange);
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 3px;
+  }
+
+  .about-content a:hover {
+    background: var(--orange);
+    color: var(--black);
+  }
+
+  /* ==================== CALENDAR ==================== */
+  #calendar {
+    background: var(--white);
+    color: var(--black);
+  }
+
+  #calendar .section-header {
+    background: var(--black);
+    box-shadow: 4px 4px 0 var(--orange);
+  }
+
+  #calendar .section-header h2 {
+    color: var(--white);
+  }
+
+  .calendar-wrap {
+    background: var(--black);
+    padding: 4px;
+    border: 4px solid var(--black);
+    box-shadow: 8px 8px 0 var(--orange);
+    overflow: hidden;
+  }
+
+  .calendar-wrap iframe {
+    display: block;
+    width: 100%;
+    height: 700px;
+    border: 0;
+    background: var(--white);
+  }
+
+  /* ==================== THIS WEEK ==================== */
+  #this-week {
+    background: var(--black);
+    background-image:
+      radial-gradient(circle at 20% 30%, rgba(235,106,0,0.15) 0%, transparent 50%),
+      radial-gradient(circle at 80% 70%, rgba(0,200,235,0.1) 0%, transparent 50%);
+  }
+
+  .week-card {
+    background: var(--paper);
+    color: var(--black);
+    padding: 30px;
+    margin-bottom: 24px;
+    border: 3px solid var(--black);
+    box-shadow: 6px 6px 0 var(--orange);
+    position: relative;
+  }
+
+  .week-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(circle at 1px 1px, rgba(0,0,0,0.15) 1px, transparent 0);
+    background-size: 4px 4px;
+    pointer-events: none;
+    opacity: 0.4;
+  }
+
+  .week-card h3 {
+    font-family: 'Anton', sans-serif;
+    font-size: 28px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    background: var(--black);
+    color: var(--white);
+    display: inline-block;
+    padding: 4px 14px 2px;
+    transform: rotate(-1deg);
+    margin-bottom: 12px;
+    position: relative;
+    z-index: 2;
+  }
+
+  .week-card p {
+    font-family: 'Special Elite', monospace;
+    font-size: 16px;
+    color: var(--black);
+    position: relative;
+    z-index: 2;
+  }
+
+  .week-cta {
+    display: inline-block;
+    margin-top: 16px;
+    background: var(--orange);
+    color: var(--black);
+    padding: 10px 22px;
+    text-decoration: none;
+    font-family: 'Anton', sans-serif;
+    font-size: 18px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    border: 3px solid var(--black);
+    box-shadow: 4px 4px 0 var(--black);
+    transition: all 0.15s ease;
+    position: relative;
+    z-index: 2;
+  }
+
+  .week-cta:hover {
+    transform: translate(-2px, -2px) rotate(-1deg);
+    box-shadow: 6px 6px 0 var(--black);
+  }
+
+  /* ==================== INSTAGRAM ==================== */
+  #instagram {
+    background: var(--white);
+    color: var(--black);
+    text-align: left;
+  }
+
+  #instagram .section-header {
+    background: var(--cyan);
+    box-shadow: 4px 4px 0 var(--black);
+  }
+
+  .ig-prompt {
+    font-family: 'Special Elite', monospace;
+    font-size: 18px;
+    color: var(--black);
+    margin-bottom: 24px;
+    max-width: 600px;
+  }
+
+  .ig-button {
+    display: inline-block;
+    background: var(--black);
+    color: var(--white);
+    padding: 16px 32px;
+    text-decoration: none;
+    font-family: 'Bungee', sans-serif;
+    font-size: 22px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    border: 4px solid var(--black);
+    box-shadow: 6px 6px 0 var(--cyan), 6px 6px 0 1px var(--black);
+    transition: all 0.15s ease;
+  }
+
+  .ig-button:hover {
+    transform: translate(-3px, -3px) rotate(-1deg);
+    box-shadow: 9px 9px 0 var(--cyan), 9px 9px 0 1px var(--black);
+  }
+
+  /* ==================== SUBMIT ==================== */
+  #submit {
+    background: var(--orange);
+    color: var(--black);
+    background-image:
+      radial-gradient(circle at 1px 1px, rgba(0,0,0,0.2) 1px, transparent 0);
+    background-size: 6px 6px;
+  }
+
+  #submit .section-header {
+    background: var(--black);
+    box-shadow: 4px 4px 0 var(--white);
+  }
+
+  #submit .section-header h2 {
+    color: var(--white);
+  }
+
+  .submit-content {
+    max-width: 700px;
+  }
+
+  .submit-content p {
+    font-family: 'Special Elite', monospace;
+    font-size: 18px;
+    color: var(--black);
+    margin-bottom: 24px;
+    background: var(--white);
+    display: inline-block;
+    padding: 8px 14px;
+  }
+
+  .submit-button {
+    display: inline-block;
+    background: var(--black);
+    color: var(--white);
+    padding: 18px 40px;
+    text-decoration: none;
+    font-family: 'Bungee', sans-serif;
+    font-size: 26px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    border: 4px solid var(--black);
+    box-shadow: 8px 8px 0 var(--white), 8px 8px 0 2px var(--black);
+    transition: all 0.15s ease;
+  }
+
+  .submit-button:hover {
+    transform: translate(-4px, -4px) rotate(-1.5deg);
+    box-shadow: 12px 12px 0 var(--white), 12px 12px 0 2px var(--black);
+  }
+
+  /* ==================== CONTACT ==================== */
+  #contact {
+    background: var(--black);
+  }
+
+  #contact .section-header {
+    background: var(--lime);
+    box-shadow: 4px 4px 0 var(--white);
+  }
+
+  .contact-content {
+    max-width: 700px;
+  }
+
+  .contact-content p {
+    font-family: 'Special Elite', monospace;
+    font-size: 18px;
+    color: var(--white);
+    margin-bottom: 18px;
+  }
+
+  .email-card {
+    display: inline-block;
+    background: var(--white);
+    color: var(--black);
+    padding: 14px 24px;
+    font-family: 'Special Elite', monospace;
+    font-size: 20px;
+    text-decoration: none;
+    border: 3px solid var(--white);
+    box-shadow: 5px 5px 0 var(--lime);
+    transition: all 0.15s ease;
+    transform: rotate(-1deg);
+  }
+
+  .email-card:hover {
+    transform: rotate(1deg) scale(1.03);
+    box-shadow: 8px 8px 0 var(--lime);
+  }
+
+  /* ==================== FOOTER ==================== */
+  footer {
+    background: var(--black);
+    border-top: 4px solid var(--orange);
+    padding: 40px 20px;
+    text-align: center;
+    position: relative;
+    z-index: 2;
+  }
+
+  footer p {
+    font-family: 'Special Elite', monospace;
+    font-size: 14px;
+    color: var(--white);
+    opacity: 0.7;
+    margin-bottom: 10px;
+  }
+
+  footer .small {
+    font-size: 12px;
+    opacity: 0.5;
+  }
+
+  /* ==================== DECORATIVE ELEMENTS ==================== */
+  .tape {
+    position: absolute;
+    background: rgba(255, 255, 255, 0.5);
+    width: 80px;
+    height: 22px;
+    z-index: 5;
+    pointer-events: none;
+  }
+
+  .tape.tl { top: -10px; left: 30px; transform: rotate(-15deg); }
+  .tape.tr { top: -10px; right: 30px; transform: rotate(12deg); }
+
+  /* ==================== ANIMATIONS ==================== */
+  @keyframes shake-in {
+    0% { transform: translateY(20px) rotate(-3deg); opacity: 0; }
+    100% { transform: translateY(0) rotate(0); opacity: 1; }
+  }
+
+  .section-header {
+    animation: shake-in 0.5s cubic-bezier(0.36, 0, 0.66, -0.56) backwards;
+  }
+
+  /* ==================== RESPONSIVE ==================== */
+  @media (max-width: 600px) {
+    section { padding: 40px 16px; }
+    .week-card { padding: 20px; box-shadow: 4px 4px 0 var(--orange); }
+    .calendar-wrap iframe { height: 500px; }
+    nav a { font-size: 14px; padding: 4px 10px; margin: 3px 1px; }
+    .submit-button { font-size: 18px; padding: 14px 24px; }
+    .ig-button { font-size: 16px; padding: 12px 22px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ==================== HEADER ==================== -->
+<header>
+  <div class="logo">
+    <span class="word">
+      <span class="letter">L</span><span class="letter">A</span><span class="letter">S</span>
+    </span>
+    <span class="word">
+      <span class="letter">V</span><span class="letter">E</span><span class="letter">G</span><span class="letter">A</span><span class="letter">S</span>
+    </span>
+    <br>
+    <span class="word">
+      <span class="letter">P</span><span class="letter">U</span><span class="letter">N</span><span class="letter">X</span>
+    </span>
+  </div>
+  <div class="tagline">// LAS VEGAS PUNK ROCK SHOW CALENDAR //</div>
+</header>
+
+<!-- ==================== NAV ==================== -->
+<nav>
+  <a href="#about">About</a>
+  <a href="#calendar">Calendar</a>
+  <a href="#this-week">This Week</a>
+  <a href="#instagram">Instagram</a>
+  <a href="#submit">Add A Show</a>
+  <a href="#contact">Contact</a>
+</nav>
+
+<main>
+
+<!-- ==================== ABOUT ==================== -->
+<section id="about">
+  <div class="section-header">
+    <h2>About</h2>
+  </div>
+  <div class="about-content">
+    <p>
+      Las Vegas Punx is the ultimate digital hub for the Las Vegas punk rock scene. Whether you're a local looking for DIY basement shows or a tourist hunting for punk rock concerts in Las Vegas, our event calendar has you covered.
+    </p>
+    <p>
+      We track everything from legendary acts hitting the Backstage Bar and House of Blues to underground gigs at The Double Down and The Dive Bar. Our mission is to connect fans with local Vegas bands, provide the latest punk music news, and make sure you never miss a beat in the 702.
+    </p>
+    <p>
+      Check our weekly show listings to see who's playing tonight, or <a href="#submit">submit your own show</a> to get the word out to the community.
+    </p>
+  </div>
+</section>
+
+<!-- ==================== CALENDAR ==================== -->
+<section id="calendar">
+  <div class="section-header">
+    <h2>Show Calendar</h2>
+  </div>
+  <div class="calendar-wrap">
+    <iframe src="https://calendar.google.com/calendar/embed?src=8e0697790fa0d47cd3f926736e8dffd1212bee27dd4b882155503857571a19e7%40group.calendar.google.com&ctz=America%2FLos_Angeles" frameborder="0" scrolling="no"></iframe>
+  </div>
+</section>
+
+<!-- ==================== THIS WEEK ==================== -->
+<section id="this-week">
+  <div class="section-header lime">
+    <h2>This Week</h2>
+  </div>
+  <div class="week-card">
+    <span class="tape tl"></span>
+    <span class="tape tr"></span>
+    <h3>Weekly Flyers</h3>
+    <p>The full breakdown of what's going down this week in the Vegas punk scene — venue by venue, night by night. Updated every week on Instagram, archived on the Punx page.</p>
+    <a class="week-cta" href="https://www.instagram.com/lasvegaspunx/" target="_blank" rel="noopener">See This Week →</a>
+  </div>
+</section>
+
+<!-- ==================== INSTAGRAM ==================== -->
+<section id="instagram">
+  <div class="section-header cyan">
+    <h2>Follow on IG</h2>
+  </div>
+  <p class="ig-prompt">
+    Daily flyers, mid-week updates, lineup changes, and last-minute show drops — all on Instagram. The fastest way to know what's playing tonight.
+  </p>
+  <a class="ig-button" href="https://www.instagram.com/lasvegaspunx/" target="_blank" rel="noopener">@lasvegaspunx</a>
+</section>
+
+<!-- ==================== SUBMIT ==================== -->
+<section id="submit">
+  <div class="section-header">
+    <h2>Add A Show</h2>
+  </div>
+  <div class="submit-content">
+    <p>Booking a show? Playing a show? Promoting a show? Get it on the calendar — submit it here and we'll get the word out to the Vegas punk community.</p>
+    <a class="submit-button" href="https://docs.google.com/forms/d/e/1FAIpQLSf4mUA8vxcg54bPOAlBY02agZGqZPoEkprFynSDphWoOV7QGA/viewform" target="_blank" rel="noopener">Submit Show →</a>
+  </div>
+</section>
+
+<!-- ==================== CONTACT ==================== -->
+<section id="contact">
+  <div class="section-header lime">
+    <h2>Contact</h2>
+  </div>
+  <div class="contact-content">
+    <p>Tips, press, band submissions, broken links, corrections, weird ideas — all welcome.</p>
+    <a class="email-card" href="mailto:lasvegaspunx@gmail.com">lasvegaspunx@gmail.com</a>
+  </div>
+</section>
+
+</main>
+
+<!-- ==================== FOOTER ==================== -->
+<footer>
+  <p>// LAS VEGAS PUNX // EST. THE 702 //</p>
+  <p class="small">Built by punks, for punks. No ads. No sponsors. No bullshit.</p>
+</footer>
+
+</body>
+</html>
