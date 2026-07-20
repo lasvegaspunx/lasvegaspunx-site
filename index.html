@@ -463,6 +463,30 @@
     opacity: 0.5;
   }
 
+  .footer-links {
+    margin-bottom: 18px;
+  }
+
+  .footer-links a {
+    color: var(--white);
+    font-family: 'Anton', sans-serif;
+    font-size: 15px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    text-decoration: none;
+    padding: 4px 10px;
+    margin: 0 2px;
+    border: 2px solid var(--white);
+    display: inline-block;
+    transition: all 0.15s ease;
+  }
+
+  .footer-links a:hover {
+    background: var(--orange);
+    border-color: var(--orange);
+    color: var(--black);
+  }
+
   /* ==================== DECORATIVE ELEMENTS ==================== */
   .tape {
     position: absolute;
@@ -491,9 +515,17 @@
     section { padding: 40px 16px; }
     .week-card { padding: 20px; box-shadow: 4px 4px 0 var(--orange); }
     .calendar-wrap iframe { height: 500px; }
-    nav a { font-size: 14px; padding: 4px 10px; margin: 3px 1px; }
+    nav { padding: 10px 8px; }
+    nav a {
+      font-size: 12px;
+      letter-spacing: 0.04em;
+      padding: 4px 8px;
+      margin: 2px 1px;
+      border-width: 1px;
+    }
     .submit-button { font-size: 18px; padding: 14px 24px; }
     .ig-button { font-size: 16px; padding: 12px 22px; }
+    .footer-links a { font-size: 13px; padding: 3px 8px; }
   }
 </style>
 </head>
@@ -523,6 +555,8 @@
   <a href="#this-week">This Week</a>
   <a href="#instagram">Instagram</a>
   <a href="#submit">Add A Show</a>
+  <a href="https://suckerpunk.com" target="_blank" rel="noopener">Zine</a>
+  <a href="https://www.etsy.com/shop/suckerpunkshop" target="_blank" rel="noopener">Merch</a>
   <a href="#contact">Contact</a>
 </nav>
 
@@ -541,7 +575,7 @@
       We track everything from legendary acts hitting the Backstage Bar and House of Blues to underground gigs at The Double Down and The Dive Bar. Our mission is to connect fans with local Vegas bands, provide the latest punk music news, and make sure you never miss a beat in the 702.
     </p>
     <p>
-      Check our weekly show listings to see who's playing tonight, or <a href="#submit">submit your own show</a> to get the word out to the community.
+      Check our weekly show listings to see who's playing tonight, or <a href="#submit">submit your own show</a> to get the word out to the community. For opinions, interviews, and everything we can't fit on a flyer, head over to <a href="https://suckerpunk.com" target="_blank" rel="noopener">Sucker Punk</a>.
     </p>
   </div>
 </section>
@@ -565,7 +599,7 @@
     <span class="tape tl"></span>
     <span class="tape tr"></span>
     <h3>Weekly Flyers</h3>
-    <p>The full breakdown of what's going down this week in the Vegas punk scene — venue by venue, night by night. Updated every week on Instagram, archived on the Punx page.</p>
+    <p>The full breakdown of what's going down this week in the Vegas punk scene, venue by venue, night by night. Updated every week on Instagram, archived on the Punx page.</p>
     <a class="week-cta" href="https://www.instagram.com/lasvegaspunx/" target="_blank" rel="noopener">See This Week →</a>
   </div>
 </section>
@@ -576,7 +610,7 @@
     <h2>Follow on IG</h2>
   </div>
   <p class="ig-prompt">
-    Daily flyers, mid-week updates, lineup changes, and last-minute show drops — all on Instagram. The fastest way to know what's playing tonight.
+    Daily flyers, mid-week updates, lineup changes, and last-minute show drops, all on Instagram. The fastest way to know what's playing tonight.
   </p>
   <a class="ig-button" href="https://www.instagram.com/lasvegaspunx/" target="_blank" rel="noopener">@lasvegaspunx</a>
 </section>
@@ -587,7 +621,7 @@
     <h2>Add A Show</h2>
   </div>
   <div class="submit-content">
-    <p>Booking a show? Playing a show? Promoting a show? Get it on the calendar — submit it here and we'll get the word out to the Vegas punk community.</p>
+    <p>Booking a show? Playing a show? Promoting a show? Get it on the calendar. Submit it here and we'll get the word out to the Vegas punk community.</p>
     <a class="submit-button" href="https://docs.google.com/forms/d/e/1FAIpQLSf4mUA8vxcg54bPOAlBY02agZGqZPoEkprFynSDphWoOV7QGA/viewform" target="_blank" rel="noopener">Submit Show →</a>
   </div>
 </section>
@@ -598,7 +632,7 @@
     <h2>Contact</h2>
   </div>
   <div class="contact-content">
-    <p>Tips, press, band submissions, broken links, corrections, weird ideas — all welcome.</p>
+    <p>Tips, press, band submissions, broken links, corrections, weird ideas, all welcome.</p>
     <a class="email-card" href="mailto:lasvegaspunx@gmail.com">lasvegaspunx@gmail.com</a>
   </div>
 </section>
@@ -607,6 +641,11 @@
 
 <!-- ==================== FOOTER ==================== -->
 <footer>
+  <div class="footer-links">
+    <a href="https://suckerpunk.com" target="_blank" rel="noopener">Sucker Punk Zine</a>
+    <a href="https://www.etsy.com/shop/suckerpunkshop" target="_blank" rel="noopener">Merch</a>
+    <a href="https://www.instagram.com/lasvegaspunx/" target="_blank" rel="noopener">Instagram</a>
+  </div>
   <p>// LAS VEGAS PUNX // EST. IN THE 702 //</p>
   <p class="small">Built by punks, for punks. No ads. No sponsors. No bullshit.</p>
 </footer>
