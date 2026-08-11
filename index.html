@@ -486,11 +486,53 @@
     animation: shake-in 0.5s cubic-bezier(0.36, 0, 0.66, -0.56) backwards;
   }
 
+  /* ==================== SCENE FEED WIDGETS ==================== */
+  .public-calendar { background: var(--white); color: var(--black); min-height: 300px; padding: 18px; }
+  .scene-feed { max-width: 1200px; margin: 0 auto; }
+  .scene-feature { display:grid; grid-template-columns:minmax(220px, .8fr) 1.2fr; border:4px solid var(--black); box-shadow:8px 8px 0 var(--orange); margin-bottom:24px; background:var(--paper); }
+  .scene-feature-media { min-height:280px; background:var(--black); display:flex; align-items:center; justify-content:center; overflow:hidden; }
+  .scene-feature-media img { width:100%; height:100%; object-fit:cover; display:block; }
+  .scene-feature-placeholder { color:var(--white); font-family:'Anton',sans-serif; font-size:20px; text-align:center; padding:30px; text-transform:uppercase; }
+  .scene-feature-copy { padding:26px; display:flex; flex-direction:column; justify-content:center; }
+  .scene-eyebrow { font-family:'Anton',sans-serif; text-transform:uppercase; letter-spacing:.08em; font-size:12px; opacity:.65; margin-bottom:8px; }
+  .scene-feature h3 { font-family:'Bungee',sans-serif; font-size:clamp(25px,4vw,48px); line-height:1; margin-bottom:16px; }
+  .scene-meta { display:flex; flex-wrap:wrap; gap:7px; margin:10px 0 18px; }
+  .scene-pill { border:2px solid var(--black); padding:5px 8px; font-family:'Anton',sans-serif; font-size:11px; text-transform:uppercase; background:var(--white); }
+  .scene-pill.hot { background:var(--orange); }
+  .scene-pill.free { background:var(--lime); }
+  .scene-pill.age { background:var(--cyan); }
+  .scene-feature-date { font-family:'Bungee',sans-serif; font-size:17px; text-transform:uppercase; }
+  .scene-toolbar { border:3px solid var(--black); background:var(--paper); padding:14px; margin-bottom:18px; }
+  .scene-search { width:100%; border:3px solid var(--black); background:var(--white); padding:12px; font-family:'Special Elite',monospace; font-size:14px; margin-bottom:12px; }
+  .scene-filters { display:flex; gap:7px; flex-wrap:wrap; }
+  .scene-filter { border:2px solid var(--black); background:var(--white); padding:7px 10px; font-family:'Anton',sans-serif; text-transform:uppercase; cursor:pointer; }
+  .scene-filter.active { background:var(--orange); }
+  .scene-filter:hover { transform:translate(-1px,-1px); }
+  .scene-count { font-size:11px; opacity:.65; margin-top:10px; text-transform:uppercase; }
+  .scene-layout { display:grid; grid-template-columns:1fr 290px; gap:18px; align-items:start; }
+  .show-list { display:grid; gap:12px; }
+  .show-card { display:grid; grid-template-columns:110px 1fr; border:3px solid var(--black); background:var(--white); box-shadow:5px 5px 0 var(--black); overflow:hidden; }
+  .show-card:hover { transform:translate(-2px,-2px); box-shadow:7px 7px 0 var(--orange); }
+  .show-card-media { min-height:150px; background:var(--black); overflow:hidden; display:flex; align-items:center; justify-content:center; }
+  .show-card-media img { width:100%; height:100%; object-fit:cover; display:block; }
+  .show-card-media span { color:var(--white); font-family:'Anton',sans-serif; font-size:11px; text-align:center; padding:10px; text-transform:uppercase; }
+  .show-card-body { padding:13px; }
+  .show-card-date { font-family:'Bungee',sans-serif; font-size:12px; color:var(--orange); text-transform:uppercase; }
+  .show-card h4 { font-family:'Anton',sans-serif; font-size:22px; line-height:1.05; text-transform:uppercase; margin:4px 0 5px; }
+  .show-card-venue { font-family:'Special Elite',monospace; font-size:12px; margin-bottom:9px; }
+  .show-card-details { display:flex; flex-wrap:wrap; gap:5px; }
+  .show-card-details span { border:1px solid var(--black); padding:3px 5px; font-family:'Anton',sans-serif; font-size:9px; text-transform:uppercase; }
+  .venue-widget { border:3px solid var(--black); background:var(--black); color:var(--white); padding:15px; position:sticky; top:15px; }
+  .venue-widget h4 { font-family:'Bungee',sans-serif; font-size:18px; margin-bottom:12px; }
+  .venue-item { border-top:1px solid #555; padding:9px 0; display:flex; justify-content:space-between; gap:8px; font-family:'Anton',sans-serif; font-size:11px; text-transform:uppercase; }
+  .venue-item b { color:var(--lime); }
+  .scene-empty { border:3px dashed var(--black); padding:35px 20px; text-align:center; font-family:'Special Elite',monospace; }
+  .scene-note { font-size:10px; opacity:.55; margin-top:15px; text-align:right; }
   /* ==================== RESPONSIVE ==================== */
   @media (max-width: 600px) {
     section { padding: 40px 16px; }
     .week-card { padding: 20px; box-shadow: 4px 4px 0 var(--orange); }
-    .calendar-wrap iframe { height: 500px; }
+    .scene-layout { grid-template-columns:1fr; } .venue-widget { position:static; } .scene-feature { grid-template-columns:1fr; } .scene-feature-media { min-height:220px; } .show-card { grid-template-columns:85px 1fr; } .show-card-media { min-height:125px; }
     nav { padding: 10px 8px; }
     nav a {
       font-size: 12px;
@@ -516,10 +558,11 @@
 <!-- ==================== NAV ==================== -->
 <nav>
   <a href="#about">About</a>
-  <a href="#calendar">Calendar</a>
   <a href="#this-week">This Week</a>
-  <a href="#instagram">Instagram</a>
+  <a href="#calendar">Calendar</a>
   <a href="#submit">Add A Show</a>
+  <a href="#instagram">Instagram</a>
+  <a href="https://www.suckerpunk.com/" target="_blank" rel="noopener">Sucker Punk Zine</a>
   <a href="https://www.etsy.com/shop/suckerpunkshop" target="_blank" rel="noopener">Merch</a>
   <a href="#contact">Contact</a>
 </nav>
@@ -547,24 +590,22 @@
 <!-- ==================== CALENDAR ==================== -->
 <section id="calendar">
   <div class="section-header">
-    <h2>Show Calendar</h2>
+    <h2>This Week</h2>
   </div>
   <div class="calendar-wrap">
-    <iframe src="https://calendar.google.com/calendar/embed?src=8e0697790fa0d47cd3f926736e8dffd1212bee27dd4b882155503857571a19e7%40group.calendar.google.com&ctz=America%2FLos_Angeles" frameborder="0" scrolling="no"></iframe>
+    <div id="lvpunx-public-calendar" class="public-calendar">
+      <div class="calendar-loading">Loading the 702...</div>
+    </div>
   </div>
 </section>
 
 <!-- ==================== THIS WEEK ==================== -->
 <section id="this-week">
   <div class="section-header lime">
-    <h2>This Week</h2>
+    <h2>Show Calendar</h2>
   </div>
-  <div class="week-card">
-    <span class="tape tl"></span>
-    <span class="tape tr"></span>
-    <h3>Weekly Flyers</h3>
-    <p>The full breakdown of what's going down this week in the Vegas punk scene, venue by venue, night by night. Updated every week on Instagram, archived on the Punx page.</p>
-    <a class="week-cta" href="https://www.instagram.com/lasvegaspunx/" target="_blank" rel="noopener">See This Week →</a>
+  <div class="calendar-wrap week-calendar-wrap">
+    <iframe src="https://calendar.google.com/calendar/embed?src=8e0697790fa0d47cd3f926736e8dffd1212bee27dd4b882155503857571a19e7%40group.calendar.google.com&ctz=America%2FLos_Angeles" frameborder="0" scrolling="no" title="Las Vegas Punx This Week Calendar"></iframe>
   </div>
 </section>
 
@@ -614,5 +655,119 @@
   <p class="small">Built by punks, for punks. No ads. No sponsors. No bullshit.</p>
 </footer>
 
+
+<script>
+  (() => {
+    const root = document.getElementById('lvpunx-public-calendar');
+    if (!root) return;
+    let filter = 'upcoming';
+    let search = '';
+    let cachedShows = [];
+
+    const escapeHtml = (value) => {
+      const div = document.createElement('div');
+      div.textContent = value == null ? '' : String(value);
+      return div.innerHTML;
+    };
+    // Pulls the shared, confirmed-only show list from the live API
+    // (Cloudflare Pages Function backed by KV). Falls back to whatever
+    // was last successfully loaded if a fetch fails.
+    const fetchShows = async () => {
+      try {
+        const res = await fetch('/api/shows', { cache: 'no-store' });
+        if (!res.ok) throw new Error('Bad response: ' + res.status);
+        const shows = await res.json();
+        cachedShows = shows.filter(s => s.status === 'confirmed' && s.date)
+          .sort((a,b) => String(a.date).localeCompare(String(b.date)));
+      } catch (e) {
+        // keep showing the last good data rather than blanking the section
+      }
+      return cachedShows;
+    };
+    const getShows = () => cachedShows;
+    const parseDate = s => { const d = new Date((s.date || '') + 'T12:00:00'); return isNaN(d) ? null : d; };
+    const dateLabel = d => d ? d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'}) : 'DATE TBA';
+    const longDate = d => d ? d.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'}) : 'Date TBA';
+    const isWeekend = d => d && [5,6].includes(d.getDay());
+    const isFree = s => /free/i.test(s.price || '');
+    const isAllAges = s => /all\s*ages/i.test(s.ages || '');
+    const isUpcoming = d => { const now=new Date(); now.setHours(0,0,0,0); return d && d >= now; };
+
+    const render = () => {
+      const shows = getShows();
+      const today = new Date(); today.setHours(0,0,0,0);
+      let filtered = shows.filter(s => {
+        const d=parseDate(s); const hay=[s.title,s.venue,s.price,s.ages].join(' ').toLowerCase();
+        if (search && !hay.includes(search.toLowerCase())) return false;
+        if (filter==='upcoming') return isUpcoming(d);
+        if (filter==='weekend') return isWeekend(d) && isUpcoming(d);
+        if (filter==='free') return isFree(s) && isUpcoming(d);
+        if (filter==='allages') return isAllAges(s) && isUpcoming(d);
+        if (filter==='under20') return /free|\$([0-9]|1[0-9])\b/i.test(s.price || '') && isUpcoming(d);
+        return true;
+      });
+      filtered = filtered.slice(0,50);
+      const upcoming = shows.filter(s=>isUpcoming(parseDate(s)));
+      const featured = upcoming[0];
+
+      const venueCounts={};
+      upcoming.forEach(s=>{const v=(s.venue||'DIY / TBA').trim(); venueCounts[v]=(venueCounts[v]||0)+1;});
+      const venues=Object.entries(venueCounts).sort((a,b)=>b[1]-a[1]).slice(0,8);
+
+      const media = (s, cls='') => s && s.flyer ? `<img class="${cls}" src="${escapeHtml(s.flyer)}" alt="${escapeHtml(s.title||'Show flyer')}">` : `<span>FLYER<br>UNAVAILABLE</span>`;
+      const pills = s => `${s.price ? `<span class="scene-pill ${isFree(s)?'free':''}">${escapeHtml(s.price)}</span>`:''}${s.ages ? `<span class="scene-pill age">${escapeHtml(s.ages)}</span>`:''}${s.doors ? `<span class="scene-pill">Doors ${escapeHtml(s.doors)}</span>`:''}`;
+
+      root.innerHTML = `
+        <div class="scene-feed">
+          ${featured ? `<article class="scene-feature">
+            <div class="scene-feature-media">${media(featured)}</div>
+            <div class="scene-feature-copy">
+              <div class="scene-eyebrow">NEXT UP / LAS VEGAS PUNX</div>
+              <div class="scene-feature-date">${escapeHtml(longDate(parseDate(featured)))}</div>
+              <h3>${escapeHtml(featured.title)}</h3>
+              <div class="scene-eyebrow">${escapeHtml(featured.venue || 'Venue TBA')}</div>
+              <div class="scene-meta">${pills(featured)}</div>
+              <div class="scene-eyebrow">CONFIRMED SHOW</div>
+            </div>
+          </article>` : ''}
+
+          <div class="scene-toolbar">
+            <input class="scene-search" id="sceneSearch" value="${escapeHtml(search)}" placeholder="Try “punk”, “all ages”, a band, or a venue...">
+            <div class="scene-filters">
+              ${[['upcoming','Upcoming'],['weekend','This Weekend'],['allages','All Ages'],['free','Free'],['under20','Under $20'],['all','All Shows']].map(([v,l])=>`<button class="scene-filter ${filter===v?'active':''}" data-filter="${v}">${l}</button>`).join('')}
+            </div>
+            <div class="scene-count">${filtered.length} shown · ${upcoming.length} upcoming confirmed shows</div>
+          </div>
+
+          <div class="scene-layout">
+            <div class="show-list">
+              ${filtered.length ? filtered.map(s=>`<article class="show-card">
+                <div class="show-card-media">${media(s)}</div>
+                <div class="show-card-body">
+                  <div class="show-card-date">${escapeHtml(dateLabel(parseDate(s)))}</div>
+                  <h4>${escapeHtml(s.title)}</h4>
+                  <div class="show-card-venue">${escapeHtml(s.venue || 'Venue TBA')}</div>
+                  <div class="show-card-details">${s.doors?`<span>Doors ${escapeHtml(s.doors)}</span>`:''}${s.price?`<span>${escapeHtml(s.price)}</span>`:''}${s.ages?`<span>${escapeHtml(s.ages)}</span>`:''}</div>
+                </div>
+              </article>`).join('') : `<div class="scene-empty">No shows matched that search. Try another filter, or add a show through the Show Intake.</div>`}
+              <div class="scene-note">Confirmed shows from the LV Punx Show Intake. Pending shows stay off the public feed.</div>
+            </div>
+            <aside class="venue-widget">
+              <h4>Find Your Room</h4>
+              ${venues.length ? venues.map(([v,n])=>`<div class="venue-item"><span>${escapeHtml(v)}</span><b>${n}</b></div>`).join('') : '<div class="venue-item">No venues yet</div>'}
+            </aside>
+          </div>
+        </div>`;
+
+      root.querySelectorAll('[data-filter]').forEach(btn=>btn.addEventListener('click',()=>{filter=btn.dataset.filter;render();}));
+      const input=root.querySelector('#sceneSearch');
+      input.addEventListener('input',e=>{search=e.target.value; render(); input.focus(); input.setSelectionRange(search.length,search.length);});
+    };
+    fetchShows().then(render);
+    // Re-poll every few minutes so a newly confirmed show shows up for
+    // visitors already on the page without them needing to reload.
+    setInterval(() => { fetchShows().then(render); }, 3 * 60 * 1000);
+  })();
+  </script>
 </body>
 </html>
