@@ -1,640 +1,102 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LV Punx — Show Intake</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Anton&family=Special+Elite&display=swap" rel="stylesheet">
-<style>
-  :root {
-    --black: #000000;
-    --white: #ffffff;
-    --orange: #EB6A00;
-    --lime: #9DEB00;
-    --cyan: #00C8EB;
-    --paper: #f0ebe0;
-    --red: #E8382C;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    background: var(--black);
-    color: var(--white);
-    font-family: 'Special Elite', 'Courier New', monospace;
-    font-size: 15px;
-    line-height: 1.5;
-    padding: 24px 16px 80px;
-  }
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    z-index: 0;
-    opacity: 0.05;
-    background-image: radial-gradient(circle at 1px 1px, var(--white) 1px, transparent 0);
-    background-size: 3px 3px;
-  }
-  .wrap { max-width: 920px; margin: 0 auto; position: relative; z-index: 1; }
+// /functions/api/extract-flyer.js
+// Cloudflare Pages Function. Receives a base64 flyer image from the admin
+// tool and reads it using Gemini's free-tier Flash model. Free through
+// Google AI Studio with rate limits (roughly 15 requests/min, 1,000/day),
+// no credit card required.
+//
+// Requires an environment variable/secret named GEMINI_API_KEY, set in
+// the Pages project: Settings -> Environment variables -> Add secret.
+// Get a free key at https://aistudio.google.com/apikey
+//
+// This path relies on Cloudflare Access protecting /api/* the same way
+// /api/shows is protected, so only a logged-in admin can trigger it.
+//
+// Note: on Gemini's free tier, Google may use request data to improve
+// their products. Fine for punk show flyers, worth knowing if that ever
+// matters for other uses of this endpoint.
 
-  header { text-align: center; margin-bottom: 32px; }
-  .eyebrow {
-    display: inline-block;
-    font-family: 'Special Elite', monospace;
-    font-size: 12px;
-    letter-spacing: 0.1em;
-    border: 1px solid var(--white);
-    padding: 3px 10px;
-    margin-bottom: 12px;
-  }
-  h1 {
-    font-family: 'Bungee', sans-serif;
-    font-size: clamp(28px, 6vw, 44px);
-    text-transform: uppercase;
-    letter-spacing: 0.02em;
-  }
-  .sub { font-size: 13px; opacity: 0.7; margin-top: 8px; max-width: 520px; margin-left: auto; margin-right: auto; }
+const GEMINI_MODEL = 'gemini-3.6-flash';
 
-  .section-header {
-    display: inline-block;
-    background: var(--orange);
-    color: var(--black);
-    padding: 8px 18px 6px;
-    margin-bottom: 18px;
-    transform: rotate(-1deg);
-    box-shadow: 3px 3px 0 var(--black), 3px 3px 0 1px var(--white);
-    font-family: 'Anton', sans-serif;
-    font-size: 18px;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-  }
-  .section-header.lime { background: var(--lime); }
-  .section-header.cyan { background: var(--cyan); }
-
-  section { margin-bottom: 44px; }
-
-  /* Upload block */
-  .dropzone {
-    border: 3px dashed var(--white);
-    background: rgba(255,255,255,0.03);
-    padding: 32px 20px;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.15s ease;
-  }
-  .dropzone:hover, .dropzone.drag { border-color: var(--orange); background: rgba(235,106,0,0.08); }
-  .dropzone input { display: none; }
-  .dropzone p { font-size: 14px; opacity: 0.8; }
-  .dropzone .big { font-family: 'Anton', sans-serif; font-size: 18px; text-transform: uppercase; margin-bottom: 6px; letter-spacing: 0.03em; }
-
-  .preview-row { display: flex; gap: 20px; margin-top: 20px; flex-wrap: wrap; }
-  .flyer-preview {
-    width: 180px; flex-shrink: 0;
-    border: 3px solid var(--white);
-    box-shadow: 5px 5px 0 var(--orange);
-  }
-  .flyer-preview img { display: block; width: 100%; height: auto; }
-
-  .form-card {
-    flex: 1;
-    min-width: 260px;
-    background: var(--paper);
-    color: var(--black);
-    padding: 20px;
-    border: 3px solid var(--black);
-    box-shadow: 5px 5px 0 var(--cyan);
-  }
-  .form-card.hidden { display: none; }
-  .field { margin-bottom: 12px; }
-  .field label {
-    display: block;
-    font-family: 'Anton', sans-serif;
-    font-size: 12px;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    margin-bottom: 4px;
-  }
-  .field input, .field select {
-    width: 100%;
-    padding: 8px 10px;
-    font-family: 'Special Elite', monospace;
-    font-size: 14px;
-    border: 2px solid var(--black);
-    background: var(--white);
-    color: var(--black);
-  }
-  .field-row { display: flex; gap: 10px; }
-  .field-row .field { flex: 1; }
-  .flag-note {
-    font-size: 12px;
-    background: var(--red);
-    color: var(--white);
-    padding: 8px 10px;
-    margin-bottom: 12px;
-    border: 2px solid var(--black);
-  }
-  .btn {
-    font-family: 'Anton', sans-serif;
-    font-size: 14px;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    padding: 10px 20px;
-    border: 3px solid var(--black);
-    background: var(--black);
-    color: var(--white);
-    cursor: pointer;
-    box-shadow: 4px 4px 0 var(--orange);
-    transition: all 0.12s ease;
-  }
-  .btn:hover { transform: translate(-2px,-2px); box-shadow: 6px 6px 0 var(--orange); }
-  .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: 4px 4px 0 var(--orange); }
-  .btn.ghost { background: var(--white); color: var(--black); box-shadow: 4px 4px 0 var(--black); }
-  .btn.small { padding: 6px 12px; font-size: 11px; box-shadow: 3px 3px 0 var(--black); }
-
-  .loading-line { font-size: 13px; opacity: 0.75; margin-top: 10px; }
-  .loading-line.error { color: var(--red); opacity: 1; font-weight: bold; }
-
-  /* Filter chips */
-  .chip-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
-  .chip {
-    font-family: 'Anton', sans-serif;
-    font-size: 12px;
-    text-transform: uppercase;
-    letter-spacing: 0.03em;
-    padding: 7px 14px;
-    border: 2px solid var(--white);
-    background: transparent;
-    color: var(--white);
-    cursor: pointer;
-  }
-  .chip.active { background: var(--cyan); color: var(--black); border-color: var(--cyan); }
-
-  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 18px; }
-  .card {
-    background: var(--paper);
-    color: var(--black);
-    border: 3px solid var(--black);
-    box-shadow: 5px 5px 0 var(--orange);
-    overflow: hidden;
-    position: relative;
-  }
-  .card .thumb { width: 100%; aspect-ratio: 4/3; object-fit: cover; border-bottom: 3px solid var(--black); background: #ddd; }
-  .card .body { padding: 14px; }
-  .card h3 {
-    font-family: 'Anton', sans-serif;
-    font-size: 16px;
-    text-transform: uppercase;
-    line-height: 1.15;
-    margin-bottom: 6px;
-  }
-  .card .meta { font-size: 12px; margin-bottom: 3px; }
-  .card .tags { margin-top: 8px; display: flex; gap: 6px; flex-wrap: wrap; }
-  .tag {
-    font-size: 10px;
-    font-family: 'Anton', sans-serif;
-    letter-spacing: 0.03em;
-    text-transform: uppercase;
-    padding: 3px 7px;
-    border: 1px solid var(--black);
-  }
-  .tag.free { background: var(--lime); }
-  .tag.ages { background: var(--cyan); }
-  .card-actions {
-    position: absolute; bottom: 8px; right: 8px;
-    display: flex; gap: 6px;
-  }
-  .card .edit,
-  .card .remove {
-    font-size: 10px;
-    font-family: 'Anton', sans-serif;
-    text-transform: uppercase;
-    color: var(--white);
-    border: 1px solid var(--black);
-    padding: 3px 8px;
-    cursor: pointer;
-  }
-  .card .edit { background: var(--black); }
-  .card .remove { background: var(--red); }
-  .empty { opacity: 0.6; font-size: 13px; padding: 20px 0; }
-
-  .export-row { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; align-items: center; }
-  .save-note { font-size: 11px; opacity: 0.55; }
-</style>
-</head>
-<body>
-
-<div class="wrap" id="mainWrap">
-
-  <header>
-    <div class="eyebrow">// DRAFT TOOL //</div>
-    <h1>Show Intake</h1>
-    <p class="sub">Upload a flyer, let it read the details, check them yourself, add it to the list. Only shows marked Confirmed show up on the public site.</p>
-  </header>
-
-  <section>
-    <div class="section-header">01 — Upload A Flyer</div>
-    <div class="dropzone" id="dropzone">
-      <div class="big">Drop a flyer image here</div>
-      <p>or click to choose a file — jpg, png, whatever you've got</p>
-      <input type="file" id="fileInput" accept="image/*">
-    </div>
-
-    <div class="preview-row" id="previewRow" style="display:none;">
-      <div class="flyer-preview"><img id="flyerImg" src="" alt="Flyer preview"></div>
-      <div class="form-card" id="formCard">
-        <div id="flagNote" style="display:none;" class="flag-note"></div>
-        <div class="field">
-          <label>Title</label>
-          <input type="text" id="f_title">
-        </div>
-        <div class="field-row">
-          <div class="field">
-            <label>Venue</label>
-            <input type="text" id="f_venue">
-          </div>
-          <div class="field">
-            <label>Date</label>
-            <input type="date" id="f_date">
-          </div>
-        </div>
-        <div class="field-row">
-          <div class="field">
-            <label>Doors</label>
-            <input type="text" id="f_doors" placeholder="e.g. 8:00 PM">
-          </div>
-          <div class="field">
-            <label>Price</label>
-            <input type="text" id="f_price" placeholder="e.g. Free / $10">
-          </div>
-        </div>
-        <div class="field">
-          <label>Ages</label>
-          <select id="f_ages">
-            <option>All ages</option>
-            <option>18+</option>
-            <option>21+</option>
-          </select>
-        </div>
-        <button class="btn" id="addToCalendar">Add To Board ↓</button>
-        <button class="btn ghost" id="cancelEdit" style="display:none;">Cancel Edit</button>
-      </div>
-    </div>
-    <p class="loading-line" id="loadingLine"></p>
-  </section>
-
-  <section>
-    <div class="section-header cyan">02 — This Week's Board</div>
-    <div class="chip-row" id="chipRow">
-      <button class="chip active" data-filter="all">All</button>
-      <button class="chip" data-filter="tonight">Tonight</button>
-      <button class="chip" data-filter="weekend">This Weekend</button>
-      <button class="chip" data-filter="free">Free</button>
-      <button class="chip" data-filter="allages">All Ages</button>
-    </div>
-    <div class="grid" id="grid"></div>
-    <p class="empty" id="emptyMsg" style="display:none;">Nothing on the board yet. Upload a flyer above to get started.</p>
-    <div class="export-row">
-      <button class="btn ghost small" id="exportBtn">Export JSON ↓</button>
-      <button class="btn ghost small" id="resetBtn">Clear Board</button>
-      <span class="save-note" id="saveNote">Loading saved shows…</span>
-    </div>
-  </section>
-
-</div>
-
-<script>
-let shows = [];
-let currentFilter = 'all';
-let pendingExtraction = null; // {dataUrl, mediaType}
-let editingId = null; // set while editing an existing board entry
-
-const $ = (id) => document.getElementById(id);
-
-// ---------- Storage ----------
-// Reads/writes the shared show board via the Pages Function at /api/shows,
-// which is backed by Cloudflare KV. This path sits behind Cloudflare Access,
-// so only a logged-in admin ever reaches these calls.
-async function loadShows() {
-  $('saveNote').textContent = 'Loading saved shows…';
+export async function onRequestPost(context) {
+  let payload;
   try {
-    const res = await fetch('/api/shows');
-    if (!res.ok) throw new Error('Bad response: ' + res.status);
-    shows = await res.json();
+    payload = await context.request.json();
   } catch (e) {
-    shows = [];
-    $('saveNote').textContent = 'Could not load the board. Check your connection and reload.';
-    renderGrid();
-    return;
-  }
-  $('saveNote').textContent = shows.length ? 'Board loaded.' : 'Nothing on the board yet.';
-  renderGrid();
-}
-
-async function saveShows() {
-  try {
-    const res = await fetch('/api/shows', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(shows)
+    return new Response(JSON.stringify({ error: 'Body must be JSON.' }), {
+      status: 400,
+      headers: { 'Content-Type': 'application/json' }
     });
-    if (!res.ok) throw new Error('Bad response: ' + res.status);
-    const result = await res.json();
-    if (Array.isArray(result.shows)) shows = result.shows;
-    if (result.syncErrors && result.syncErrors.length) {
-      $('saveNote').textContent = 'Saved, but calendar sync had issues: ' + result.syncErrors.join('; ');
-    } else {
-      $('saveNote').textContent = 'Saved to the live board.';
+  }
+
+  const { base64, mimeType } = payload;
+  if (!base64 || !mimeType) {
+    return new Response(JSON.stringify({ error: 'Missing base64 or mimeType.' }), {
+      status: 400,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+
+  const apiKey = context.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    return new Response(JSON.stringify({ error: 'GEMINI_API_KEY is not configured on the server.' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+
+  const todayStr = new Date().toISOString().slice(0, 10);
+
+  const prompt = `You extract structured show info from Las Vegas punk/DIY show flyers.
+Today's actual date is ${todayStr}. Use this to resolve any date on the flyer that has no year printed, or only a weekday/month/day: pick the nearest occurrence of that date that is on or after today. Never guess a year without reasoning from today's date. If the flyer's printed date has already passed relative to today assuming the current year, roll it to next year instead.
+Return ONLY a JSON object, no markdown fences, no preamble, matching exactly this shape:
+{"title": string, "venue": string, "date": string (YYYY-MM-DD, resolved per the rule above), "doors": string (e.g. "8:00 PM", empty string if unknown), "price": string (e.g. "Free", "$10", "$8 adv / $10 door", empty string if unknown), "ages": string (one of "All ages", "18+", "21+", best guess if unclear), "flag": string (empty string if nothing is ambiguous or conflicting on the flyer; otherwise a short note on what's unclear or contradictory, e.g. two different dates printed, or say explicitly if you had to infer the year)}`;
+
+  try {
+    const geminiRes = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${apiKey}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{
+            parts: [
+              { inline_data: { mime_type: mimeType, data: base64 } },
+              { text: prompt }
+            ]
+          }],
+          generationConfig: {
+            responseMimeType: 'application/json'
+          }
+        })
+      }
+    );
+
+    if (!geminiRes.ok) {
+      const errText = await geminiRes.text();
+      return new Response(JSON.stringify({ error: 'Gemini API error: ' + errText }), {
+        status: 502,
+        headers: { 'Content-Type': 'application/json' }
+      });
     }
-    renderGrid();
+
+    const data = await geminiRes.json();
+    const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (!rawText) throw new Error('No response text from Gemini.');
+
+    const clean = rawText.replace(/```json|```/g, '').trim();
+    const parsed = JSON.parse(clean);
+
+    return new Response(JSON.stringify(parsed), {
+      headers: { 'Content-Type': 'application/json' }
+    });
   } catch (e) {
-    $('saveNote').textContent = 'Could not save, changes are only on this screen. Export as backup and try again.';
-  }
-}
-
-// ---------- Upload / drag-drop ----------
-const dropzone = $('dropzone');
-const fileInput = $('fileInput');
-
-dropzone.addEventListener('click', () => fileInput.click());
-dropzone.addEventListener('dragover', (e) => { e.preventDefault(); dropzone.classList.add('drag'); });
-dropzone.addEventListener('dragleave', () => dropzone.classList.remove('drag'));
-dropzone.addEventListener('drop', (e) => {
-  e.preventDefault();
-  dropzone.classList.remove('drag');
-  if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
-});
-fileInput.addEventListener('change', (e) => {
-  if (e.target.files[0]) handleFile(e.target.files[0]);
-});
-
-function handleFile(file) {
-  if (!file.type.startsWith('image/')) {
-    $('loadingLine').textContent = 'That doesn\'t look like an image — try a jpg or png.';
-    $('loadingLine').classList.add('error');
-    return;
-  }
-  const reader = new FileReader();
-  reader.onload = () => {
-    const dataUrl = reader.result;
-    $('flyerImg').src = dataUrl;
-    $('previewRow').style.display = 'flex';
-    extractFlyer(dataUrl, file.type);
-  };
-  reader.readAsDataURL(file);
-}
-
-// ---------- Extraction via Claude ----------
-// Calls our own /api/extract-flyer Pages Function, which holds the
-// Anthropic API key server-side and does the actual model call.
-async function extractFlyer(dataUrl, mimeType) {
-  $('loadingLine').textContent = 'Reading the flyer…';
-  $('loadingLine').classList.remove('error');
-  $('formCard').classList.add('hidden');
-
-  const base64 = dataUrl.split(',')[1];
-
-  try {
-    const response = await fetch('/api/extract-flyer', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ base64, mimeType })
+    return new Response(JSON.stringify({ error: e.message || 'Unknown error extracting flyer.' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
     });
-
-    const parsed = await response.json();
-    if (!response.ok) throw new Error(parsed.error || 'Extraction failed.');
-
-    $('f_title').value = parsed.title || '';
-    $('f_venue').value = parsed.venue || '';
-    $('f_date').value = parsed.date || '';
-    $('f_doors').value = parsed.doors || '';
-    $('f_price').value = parsed.price || '';
-    $('f_ages').value = ['All ages', '18+', '21+'].includes(parsed.ages) ? parsed.ages : 'All ages';
-
-    if (parsed.flag) {
-      $('flagNote').textContent = '⚠ ' + parsed.flag;
-      $('flagNote').style.display = 'block';
-    } else {
-      $('flagNote').style.display = 'none';
-    }
-
-    pendingExtraction = { dataUrl };
-    $('formCard').classList.remove('hidden');
-    $('loadingLine').textContent = 'Got it, double-check the details before adding.';
-  } catch (err) {
-    $('loadingLine').textContent = 'Couldn\'t read that flyer automatically. Fill in the details by hand below.';
-    $('loadingLine').classList.add('error');
-    $('f_title').value = '';
-    $('f_venue').value = '';
-    $('f_date').value = '';
-    $('f_doors').value = '';
-    $('f_price').value = '';
-    $('f_ages').value = 'All ages';
-    $('flagNote').style.display = 'none';
-    pendingExtraction = { dataUrl };
-    $('formCard').classList.remove('hidden');
   }
 }
 
-// ---------- Status toggle ----------
-// Removed: every entry auto-confirms on add now. See editingId / addToCalendar
-// below for how existing entries get fixed up later instead.
-
-// ---------- Add / save edits to the board ----------
-$('addToCalendar').addEventListener('click', () => {
-  const title = $('f_title').value.trim();
-  const date = $('f_date').value;
-  if (!title || !date) {
-    $('loadingLine').textContent = 'Needs at least a title and a date before it goes on the board.';
-    $('loadingLine').classList.add('error');
-    return;
-  }
-  const fields = {
-    title,
-    venue: $('f_venue').value.trim(),
-    date,
-    doors: $('f_doors').value.trim(),
-    price: $('f_price').value.trim(),
-    ages: $('f_ages').value,
-    status: 'confirmed', // everything auto-confirms now, edit later if something's wrong
-    flyer: pendingExtraction ? pendingExtraction.dataUrl : ''
-  };
-
-  if (editingId) {
-    const existing = shows.find(s => s.id === editingId);
-    if (existing) {
-      Object.assign(existing, fields);
-      // Editing a title/date/venue doesn't move the calendar event, just the
-      // board entry. If you need the calendar event itself corrected, easiest
-      // is to fix it directly in Google Calendar for now.
-    }
-  } else {
-    shows.push({ id: Date.now().toString(36), ...fields });
-  }
-
-  saveShows();
-  renderGrid();
-  exitEditMode();
-
-  $('previewRow').style.display = 'none';
-  $('flyerImg').src = '';
-  fileInput.value = '';
-  pendingExtraction = null;
-  $('loadingLine').textContent = editingId ? 'Changes saved.' : 'Added to the board.';
-  $('loadingLine').classList.remove('error');
-});
-
-$('cancelEdit').addEventListener('click', () => {
-  exitEditMode();
-  $('previewRow').style.display = 'none';
-  $('flyerImg').src = '';
-  fileInput.value = '';
-  pendingExtraction = null;
-  $('loadingLine').textContent = '';
-});
-
-function enterEditMode(show) {
-  editingId = show.id;
-  pendingExtraction = show.flyer ? { dataUrl: show.flyer } : null;
-
-  $('f_title').value = show.title || '';
-  $('f_venue').value = show.venue || '';
-  $('f_date').value = show.date || '';
-  $('f_doors').value = show.doors || '';
-  $('f_price').value = show.price || '';
-  $('f_ages').value = ['All ages', '18+', '21+'].includes(show.ages) ? show.ages : 'All ages';
-  $('flagNote').style.display = 'none';
-
-  $('flyerImg').src = show.flyer || '';
-  $('previewRow').style.display = show.flyer ? 'flex' : 'none';
-  $('formCard').classList.remove('hidden');
-  $('addToCalendar').textContent = 'Save Changes ↓';
-  $('cancelEdit').style.display = 'inline-block';
-  $('loadingLine').textContent = 'Editing "' + (show.title || 'this show') + '". Update the fields and save.';
-  $('loadingLine').classList.remove('error');
-
-  $('formCard').scrollIntoView({ behavior: 'smooth', block: 'center' });
+export async function onRequestOptions() {
+  return new Response(null, { status: 204 });
 }
-
-function exitEditMode() {
-  editingId = null;
-  $('addToCalendar').textContent = 'Add To Board ↓';
-  $('cancelEdit').style.display = 'none';
-}
-
-// ---------- Filters ----------
-document.querySelectorAll('.chip').forEach(chip => {
-  chip.addEventListener('click', () => {
-    document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-    chip.classList.add('active');
-    currentFilter = chip.dataset.filter;
-    renderGrid();
-  });
-});
-
-function isTonight(dateStr) {
-  const today = new Date();
-  const d = new Date(dateStr + 'T00:00:00');
-  return d.toDateString() === today.toDateString();
-}
-function isThisWeekend(dateStr) {
-  const d = new Date(dateStr + 'T00:00:00');
-  const today = new Date();
-  today.setHours(0,0,0,0);
-  const diffDays = Math.round((d - today) / 86400000);
-  if (diffDays < 0 || diffDays > 7) return false;
-  const day = d.getDay(); // 0 Sun .. 6 Sat
-  return day === 5 || day === 6 || day === 0;
-}
-
-function filteredShows() {
-  return shows
-    .slice()
-    .sort((a,b) => a.date.localeCompare(b.date))
-    .filter(s => {
-      if (currentFilter === 'tonight') return isTonight(s.date);
-      if (currentFilter === 'weekend') return isThisWeekend(s.date);
-      if (currentFilter === 'free') return /free/i.test(s.price) || s.price === '';
-      if (currentFilter === 'allages') return s.ages === 'All ages';
-      return true;
-    });
-}
-
-function renderGrid() {
-  const grid = $('grid');
-  const list = filteredShows();
-  grid.innerHTML = '';
-  $('emptyMsg').style.display = list.length ? 'none' : 'block';
-
-  list.forEach(s => {
-    const card = document.createElement('div');
-    card.className = 'card';
-
-    const dateLabel = s.date ? new Date(s.date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', weekday: 'short' }) : '';
-
-    card.innerHTML = `
-      ${s.flyer ? `<img class="thumb" src="${s.flyer}" alt="${s.title} flyer">` : ''}
-      <div class="body">
-        <h3>${escapeHtml(s.title)}</h3>
-        <div class="meta">${escapeHtml(s.venue || 'Venue TBD')}</div>
-        <div class="meta">${dateLabel}${s.doors ? ' · Doors ' + escapeHtml(s.doors) : ''}</div>
-        <div class="tags">
-          ${s.price ? `<span class="tag ${/free/i.test(s.price) ? 'free' : ''}">${escapeHtml(s.price)}</span>` : ''}
-          <span class="tag ages">${escapeHtml(s.ages)}</span>
-        </div>
-      </div>
-      <div class="card-actions">
-        <div class="edit" data-id="${s.id}">Edit</div>
-        <div class="remove" data-id="${s.id}">Remove</div>
-      </div>
-    `;
-    grid.appendChild(card);
-  });
-
-  document.querySelectorAll('.edit').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const show = shows.find(s => s.id === btn.dataset.id);
-      if (show) enterEditMode(show);
-    });
-  });
-
-  document.querySelectorAll('.remove').forEach(btn => {
-    btn.addEventListener('click', () => {
-      if (btn.dataset.id === editingId) exitEditMode();
-      shows = shows.filter(s => s.id !== btn.dataset.id);
-      saveShows();
-      renderGrid();
-    });
-  });
-}
-
-function escapeHtml(str) {
-  const div = document.createElement('div');
-  div.textContent = str;
-  return div.innerHTML;
-}
-
-// ---------- Export / reset ----------
-$('exportBtn').addEventListener('click', () => {
-  const exportData = shows.map(({flyer, ...rest}) => rest); // drop base64 flyers from export, keep data light
-  const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'lvpunx-shows.json';
-  a.click();
-  URL.revokeObjectURL(url);
-});
-
-$('resetBtn').addEventListener('click', async () => {
-  if (!confirm('Clear every show on the board? This can\'t be undone.')) return;
-  shows = [];
-  await saveShows();
-  renderGrid();
-});
-
-// ---------- Init ----------
-loadShows();
-</script>
-</body>
-</html>
