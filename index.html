@@ -772,7 +772,24 @@
     const parseDate = s => { const d = new Date((s.date || '') + 'T12:00:00'); return isNaN(d) ? null : d; };
     const dateLabel = d => d ? d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'}) : 'DATE TBA';
     const longDate = d => d ? d.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'}) : 'Date TBA';
-    const isWeekend = d => d && [5,6].includes(d.getDay());
+    const isThisWeekend = d => {
+      if (!d) return false;
+      const today = new Date(); today.setHours(0,0,0,0);
+      const dow = today.getDay(); // 0=Sun ... 6=Sat
+      const daysSinceFriday = (dow - 5 + 7) % 7; // 0=Fri,1=Sat,2=Sun,3=Mon...6=Thu
+      const weekendStart = new Date(today);
+      if (daysSinceFriday <= 2) {
+        // today IS Fri/Sat/Sun, so this weekend already started (or is today)
+        weekendStart.setDate(weekendStart.getDate() - daysSinceFriday);
+      } else {
+        // Mon-Thu, so the weekend hasn't started yet, find the upcoming Friday
+        weekendStart.setDate(weekendStart.getDate() + ((5 - dow + 7) % 7));
+      }
+      const weekendEnd = new Date(weekendStart);
+      weekendEnd.setDate(weekendEnd.getDate() + 2); // Friday + 2 = Sunday
+      weekendEnd.setHours(23,59,59,999);
+      return d >= weekendStart && d <= weekendEnd;
+    };
     const isFree = s => /free/i.test(s.price || '');
     const isAllAges = s => /all\s*ages/i.test(s.ages || '');
     const isUpcoming = d => { const now=new Date(); now.setHours(0,0,0,0); return d && d >= now; };
@@ -790,7 +807,7 @@
         if (venueFilter && (s.venue || 'DIY / TBA').trim() !== venueFilter) return false;
         if (search && !hay.includes(search.toLowerCase())) return false;
         if (filter==='upcoming') return isNext10Days(d);
-        if (filter==='weekend') return isWeekend(d) && isUpcoming(d);
+        if (filter==='weekend') return isThisWeekend(d) && isUpcoming(d);
         if (filter==='free') return isFree(s) && isUpcoming(d);
         if (filter==='allages') return isAllAges(s) && isUpcoming(d);
         if (filter==='under20') return /free|\$([0-9]|1[0-9])\b/i.test(s.price || '') && isUpcoming(d);
