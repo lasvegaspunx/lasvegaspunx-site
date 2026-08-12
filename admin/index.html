@@ -308,8 +308,10 @@ let shows = [];
 let currentFilter = 'all';
 let pendingExtraction = null; // {dataUrl, mediaType}
 let editingId = null; // set while editing an existing board entry
+let saveQueue = Promise.resolve(); // ensures saves run one at a time, see queueSave()
 
 const $ = (id) => document.getElementById(id);
+const CACHE_KEY = 'lvpunx-admin-shows-cache';
 
 // ---------- Storage ----------
 // Reads the shared show board from the public /api/shows endpoint (GET
@@ -317,15 +319,40 @@ const $ = (id) => document.getElementById(id);
 // and writes changes to the protected /api/admin/shows endpoint instead.
 // which is backed by Cloudflare KV. This path sits behind Cloudflare Access,
 // so only a logged-in admin ever reaches these calls.
+//
+// Cloudflare KV is "eventually consistent", a write can take up to ~60
+// seconds to show up on a fresh read from a different edge server. Without
+// help, that makes a just-saved show look like it vanished if you reload
+// right after saving. To avoid that, every save also caches the result in
+// this browser's localStorage, and on load we merge in anything from that
+// cache that the server read doesn't have yet (matched by id), so a recent
+// addition never appears to disappear just because KV hasn't caught up.
+function readCache() {
+  try { return JSON.parse(localStorage.getItem(CACHE_KEY) || '[]'); }
+  catch (e) { return []; }
+}
+function writeCache(list) {
+  try { localStorage.setItem(CACHE_KEY, JSON.stringify(list)); }
+  catch (e) { /* storage full or unavailable, not worth failing over */ }
+}
+
 async function loadShows() {
   $('saveNote').textContent = 'Loading saved shows…';
   try {
     const res = await fetch('/api/shows');
     if (!res.ok) throw new Error('Bad response: ' + res.status);
-    shows = await res.json();
+    const serverShows = await res.json();
+    const cached = readCache();
+    const serverIds = new Set(serverShows.map(s => s.id));
+    const missingFromServer = cached.filter(c => !serverIds.has(c.id));
+    shows = missingFromServer.length ? [...serverShows, ...missingFromServer] : serverShows;
+    writeCache(shows);
   } catch (e) {
-    shows = [];
-    $('saveNote').textContent = 'Could not load the board. Check your connection and reload.';
+    // Fall back to whatever we last cached, better than an empty board.
+    shows = readCache();
+    $('saveNote').textContent = shows.length
+      ? 'Could not reach the server, showing your last saved copy.'
+      : 'Could not load the board. Check your connection and reload.';
     renderGrid();
     return;
   }
@@ -342,7 +369,17 @@ async function saveShows() {
     });
     if (!res.ok) throw new Error('Bad response: ' + res.status);
     const result = await res.json();
-    if (Array.isArray(result.shows)) shows = result.shows;
+    if (Array.isArray(result.shows)) {
+      // Merge server-computed fields (like calendarEventId) back onto matching
+      // local shows by id, rather than replacing the whole array. A wholesale
+      // replace would wipe out anything added locally after this particular
+      // request was already sent but before its response came back, even
+      // with the save queue serializing requests, this still matters because
+      // "shows" keeps changing locally while an in-flight request waits.
+      const byId = new Map(result.shows.map(s => [s.id, s]));
+      shows = shows.map(s => byId.has(s.id) ? { ...s, ...byId.get(s.id) } : s);
+    }
+    writeCache(shows);
     if (result.syncErrors && result.syncErrors.length) {
       $('saveNote').textContent = 'Saved, but calendar sync had issues: ' + result.syncErrors.join('; ');
     } else {
@@ -352,6 +389,17 @@ async function saveShows() {
   } catch (e) {
     $('saveNote').textContent = 'Could not save, changes are only on this screen. Export as backup and try again.';
   }
+}
+
+// Every place that wants to save should call this, not saveShows() directly.
+// Chains onto the existing queue so a new save always waits for whatever's
+// currently in flight to finish first, this is what stops a slow older
+// request's response from landing after a newer one and overwriting it with
+// stale data (which is what was causing recently-added shows to vanish on
+// reload when adding several in quick succession).
+function queueSave() {
+  saveQueue = saveQueue.then(() => saveShows());
+  return saveQueue;
 }
 
 // ---------- Upload / drag-drop ----------
@@ -474,7 +522,7 @@ $('addToCalendar').addEventListener('click', () => {
     shows.push({ id: Date.now().toString(36), ...fields });
   }
 
-  saveShows();
+  queueSave();
   renderGrid();
   exitEditMode();
 
@@ -604,7 +652,7 @@ function renderGrid() {
     btn.addEventListener('click', () => {
       if (btn.dataset.id === editingId) exitEditMode();
       shows = shows.filter(s => s.id !== btn.dataset.id);
-      saveShows();
+      queueSave();
       renderGrid();
     });
   });
@@ -631,7 +679,7 @@ $('exportBtn').addEventListener('click', () => {
 $('resetBtn').addEventListener('click', async () => {
   if (!confirm('Clear every show on the board? This can\'t be undone.')) return;
   shows = [];
-  await saveShows();
+  await queueSave();
   renderGrid();
 });
 
