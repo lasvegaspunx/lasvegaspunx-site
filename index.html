@@ -559,7 +559,7 @@
   .flyer-lightbox-close:hover { background: var(--white); color: var(--black); }
 
   .scene-feature-media { min-height:280px; background:var(--black); display:flex; align-items:center; justify-content:center; overflow:hidden; }
-  .scene-feature-media img { width:100%; height:100%; object-fit:cover; display:block; }
+  .scene-feature-media img { width:100%; height:100%; object-fit:contain; display:block; }
   .scene-feature-placeholder { color:var(--white); font-family:'Anton',sans-serif; font-size:20px; text-align:center; padding:30px; text-transform:uppercase; }
   .scene-feature-copy { padding:26px; display:flex; flex-direction:column; justify-content:center; }
   .scene-eyebrow { font-family:'Anton',sans-serif; text-transform:uppercase; letter-spacing:.08em; font-size:12px; opacity:.65; margin-bottom:8px; }
@@ -863,7 +863,7 @@
               ${featuredList.map(f => `<article class="scene-feature">
                 <div class="scene-feature-media">${media(f)}</div>
                 <div class="scene-feature-copy">
-                  <div class="scene-eyebrow">NEXT UP / LAS VEGAS PUNX</div>
+                  <div class="scene-eyebrow">NEXT UP</div>
                   <div class="scene-feature-date">${escapeHtml(longDate(parseDate(f)))}</div>
                   <h3>${escapeHtml(f.title)}</h3>
                   <div class="scene-eyebrow">${escapeHtml(f.venue || 'Venue TBA')}</div>
