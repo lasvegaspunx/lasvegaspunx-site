@@ -58,8 +58,11 @@ export async function onRequestPost(context) {
 
   const prompt = `You extract structured show info from Las Vegas punk/DIY show flyers.
 Today's actual date is ${todayStr}. Use this to resolve any date on the flyer that has no year printed, or only a weekday/month/day: pick the nearest occurrence of that date that is on or after today. Never guess a year without reasoning from today's date. If the flyer's printed date has already passed relative to today assuming the current year, roll it to next year instead.
+
+For the title field specifically: list EVERY band name that appears on the flyer, not just the headliner or the largest text. Flyers often show 3-6+ bands in a stacked lineup, scan the whole image top to bottom and capture all of them. Join them with ", " in the order they appear on the flyer (usually headliner first, openers after). If the flyer has a separate overall event name (like a festival or recurring show name) in addition to the band list, put that first, then the bands. Do not drop any band to save space, do not summarize as "and others."
+
 Return ONLY a JSON object, no markdown fences, no preamble, matching exactly this shape:
-{"title": string, "venue": string, "date": string (YYYY-MM-DD, resolved per the rule above), "doors": string (e.g. "8:00 PM", empty string if unknown), "price": string (e.g. "Free", "$10", "$8 adv / $10 door", empty string if unknown), "ages": string (one of "All ages", "18+", "21+", best guess if unclear), "flag": string (empty string if nothing is ambiguous or conflicting on the flyer; otherwise a short note on what's unclear or contradictory, e.g. two different dates printed, or say explicitly if you had to infer the year)}`;
+{"title": string, "venue": string, "date": string (YYYY-MM-DD, resolved per the rule above), "doors": string (e.g. "8:00 PM", empty string if unknown), "price": string (e.g. "Free", "$10", "$8 adv / $10 door", empty string if unknown), "ages": string (one of "All ages", "18+", "21+", best guess if unclear), "flag": string (empty string if nothing is ambiguous or conflicting on the flyer; otherwise a short note on what's unclear or contradictory, e.g. two different dates printed, or say explicitly if you had to infer the year, or say so if you weren't confident you caught every band)}`;
 
   try {
     const geminiRes = await fetch(
