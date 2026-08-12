@@ -504,11 +504,11 @@
   .scene-feature-track { display: flex; transition: transform 0.5s ease; }
   .scene-feature-track .scene-feature { flex: 0 0 100%; margin-bottom: 0; }
   .carousel-arrow {
-    position: absolute; top: 50%; transform: translateY(-50%);
-    width: 40px; height: 40px;
+    position: absolute; bottom: 4px;
+    width: 30px; height: 30px;
     background: var(--black); color: var(--white);
     border: 2px solid var(--white);
-    font-size: 22px; line-height: 1;
+    font-size: 18px; line-height: 1;
     cursor: pointer; z-index: 2;
   }
   .carousel-arrow:hover { background: var(--orange); color: var(--black); }
@@ -526,7 +526,7 @@
   }
   .carousel-dot.active { background: var(--lime); }
 
-  .scene-feature { display:grid; grid-template-columns:minmax(220px, .8fr) 1.2fr; box-shadow:8px 8px 0 var(--orange); margin-bottom:24px; background:transparent; }
+  .scene-feature { display:grid; grid-template-columns:minmax(220px, .8fr) 1.2fr; margin-bottom:24px; background:transparent; }
   .flyer-lightbox {
     display: none;
     position: fixed; inset: 0;
@@ -845,7 +845,7 @@
       if (filter==='archive') filtered = filtered.slice().reverse(); // most recently passed first
       filtered = filtered.slice(0,50);
       const upcoming = shows.filter(s=>isUpcoming(parseDate(s)));
-      const featuredList = upcoming.slice(0,6);
+      const featuredList = upcoming.slice(0,12);
       if (featuredIndex >= featuredList.length) featuredIndex = 0; // clamp if the list shrank
 
       const venueCounts={};
