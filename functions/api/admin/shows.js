@@ -16,6 +16,17 @@
 // If those aren't configured, saving still works fine, calendar sync is just
 // skipped silently.
 //
+// Flyer images: Cloudflare KV caps any single value at 25MB. Storing every
+// flyer's full base64 image inline inside the one "shows-list" blob meant
+// that blob could eventually hit that cap as more flyers piled up, and once
+// it did, this whole write would fail silently (no error surfaced to the
+// admin tool, the show just wouldn't actually be there on the next load).
+// To avoid that, each flyer image now gets stored under its own KV key
+// (flyer:<id>) instead, and the show record just holds a reference URL
+// (/api/flyer/<id>) that a separate public endpoint serves the image from.
+// This keeps the shows-list blob itself small no matter how many flyers
+// pile up over time.
+//
 // Requires a KV namespace bound as `SHOWS`.
 
 const KV_KEY = 'shows-list';
@@ -31,6 +42,24 @@ export async function onRequestPost(context) {
       status: 400,
       headers: { 'Content-Type': 'application/json' }
     });
+  }
+
+  // Move any freshly-uploaded flyer (still a raw data: URL at this point)
+  // out into its own KV entry, and swap the show's flyer field for a
+  // reference URL instead. Flyers that were already moved on a previous
+  // save (flyer field already starts with /api/flyer/) are left alone,
+  // no need to re-store something that's already stored.
+  const flyerErrors = [];
+  for (const show of shows) {
+    if (show.flyer && show.flyer.startsWith('data:')) {
+      try {
+        await context.env.SHOWS.put('flyer:' + show.id, show.flyer);
+        show.flyer = '/api/flyer/' + show.id;
+      } catch (e) {
+        flyerErrors.push(`${show.title || 'Untitled show'}: could not store flyer image (${e.message})`);
+        show.flyer = ''; // don't leave a giant data URL sitting in the list blob if storing it separately failed
+      }
+    }
   }
 
   const syncUrl = context.env.CALENDAR_SYNC_URL;
@@ -59,9 +88,22 @@ export async function onRequestPost(context) {
     }
   }
 
-  await context.env.SHOWS.put(KV_KEY, JSON.stringify(shows));
+  try {
+    await context.env.SHOWS.put(KV_KEY, JSON.stringify(shows));
+  } catch (e) {
+    // This used to throw uncaught, which Cloudflare turns into a generic
+    // HTML 502 page, the admin tool would just see a failed fetch with no
+    // useful explanation. Now it comes back as a clear JSON error instead.
+    return new Response(JSON.stringify({
+      ok: false,
+      error: 'Could not save the show list: ' + e.message + '. If this mentions size, the show list itself is too large, moving flyers to their own storage (done above) should prevent this going forward, but a genuinely huge board could still hit it.'
+    }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
 
-  return new Response(JSON.stringify({ ok: true, shows, syncErrors }), {
+  return new Response(JSON.stringify({ ok: true, shows, syncErrors, flyerErrors }), {
     headers: { 'Content-Type': 'application/json' }
   });
 }
