@@ -312,7 +312,9 @@ let editingId = null; // set while editing an existing board entry
 const $ = (id) => document.getElementById(id);
 
 // ---------- Storage ----------
-// Reads/writes the shared show board via the Pages Function at /api/shows,
+// Reads the shared show board from the public /api/shows endpoint (GET
+// only, no login required, since the public site needs to read this too),
+// and writes changes to the protected /api/admin/shows endpoint instead.
 // which is backed by Cloudflare KV. This path sits behind Cloudflare Access,
 // so only a logged-in admin ever reaches these calls.
 async function loadShows() {
@@ -333,7 +335,7 @@ async function loadShows() {
 
 async function saveShows() {
   try {
-    const res = await fetch('/api/shows', {
+    const res = await fetch('/api/admin/shows', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(shows)
@@ -385,7 +387,7 @@ function handleFile(file) {
 }
 
 // ---------- Extraction via Claude ----------
-// Calls our own /api/read-flyer Pages Function, which holds the
+// Calls our own /api/admin/read-flyer Pages Function, which holds the
 // Anthropic API key server-side and does the actual model call.
 async function extractFlyer(dataUrl, mimeType) {
   $('loadingLine').textContent = 'Reading the flyer…';
@@ -395,7 +397,7 @@ async function extractFlyer(dataUrl, mimeType) {
   const base64 = dataUrl.split(',')[1];
 
   try {
-    const response = await fetch('/api/read-flyer', {
+    const response = await fetch('/api/admin/read-flyer', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ base64, mimeType })
