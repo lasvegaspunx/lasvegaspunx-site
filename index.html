@@ -599,6 +599,17 @@
   .venue-item-all:hover { opacity:1; }
   .venue-item b { color:var(--lime); }
   .scene-empty { border:3px dashed var(--black); padding:35px 20px; text-align:center; font-family:'Special Elite',monospace; }
+  .show-pagination { display:flex; align-items:center; justify-content:center; gap:14px; margin-top:16px; }
+  .page-arrow {
+    width: 34px; height: 34px;
+    background: var(--black); color: var(--white);
+    border: 2px solid var(--black);
+    font-size: 18px; line-height: 1;
+    cursor: pointer;
+  }
+  .page-arrow:hover:not(:disabled) { background: var(--orange); border-color: var(--orange); color: var(--black); }
+  .page-arrow:disabled { opacity: .3; cursor: default; }
+  .page-indicator { font-family:'Anton',sans-serif; font-size:12px; text-transform:uppercase; letter-spacing:.05em; }
   .scene-note { font-size:10px; opacity:.55; margin-top:15px; text-align:right; }
   /* ==================== RESPONSIVE ==================== */
   @media (max-width: 600px) {
@@ -736,6 +747,8 @@
     let filter = 'upcoming';
     let search = '';
     let venueFilter = null; // null = no venue narrowing, otherwise a venue name string
+    let currentPage = 0; // which page of the show list is showing, 5 per page
+    const PAGE_SIZE = 5;
     let featuredIndex = 0; // which slide of the "Next Up" carousel is showing
     let cachedShows = [];
 
@@ -843,7 +856,10 @@
         return isUpcoming(d); // 'all' and any unrecognized filter default here
       });
       if (filter==='archive') filtered = filtered.slice().reverse(); // most recently passed first
-      filtered = filtered.slice(0,50);
+      const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+      if (currentPage >= totalPages) currentPage = totalPages - 1; // clamp if the list shrank
+      if (currentPage < 0) currentPage = 0;
+      const pageItems = filtered.slice(currentPage * PAGE_SIZE, currentPage * PAGE_SIZE + PAGE_SIZE);
       const upcoming = shows.filter(s=>isUpcoming(parseDate(s)));
       const featuredList = upcoming.slice(0,12);
       if (featuredIndex >= featuredList.length) featuredIndex = 0; // clamp if the list shrank
@@ -883,12 +899,12 @@
             <div class="scene-filters">
               ${[['upcoming','Upcoming This Week'],['weekend','This Weekend'],['allages','All Ages'],['free','Free'],['under20','Under $20'],['all','All Upcoming Shows'],['archive','Archive']].map(([v,l])=>`<button class="scene-filter ${filter===v?'active':''}" data-filter="${v}">${l}</button>`).join('')}
             </div>
-            <div class="scene-count">${filtered.length} shown · ${upcoming.length} upcoming confirmed shows</div>
+            <div class="scene-count">${filtered.length} shows found · ${upcoming.length} upcoming confirmed shows</div>
           </div>
 
           <div class="scene-layout">
             <div class="show-list">
-              ${filtered.length ? filtered.map(s=>`<article class="show-card">
+              ${pageItems.length ? pageItems.map(s=>`<article class="show-card">
                 <div class="show-card-media">${media(s)}</div>
                 <div class="show-card-body">
                   <div class="show-card-date">${escapeHtml(dateLabel(parseDate(s)))}</div>
@@ -897,6 +913,11 @@
                   <div class="show-card-details">${s.doors?`<span>Doors ${escapeHtml(s.doors)}</span>`:''}${s.price?`<span>${escapeHtml(s.price)}</span>`:''}${s.ages?`<span>${escapeHtml(s.ages)}</span>`:''}</div>
                 </div>
               </article>`).join('') : `<div class="scene-empty">No shows matched that search. Try another filter, or add a show through the Show Intake.</div>`}
+              ${totalPages > 1 ? `<div class="show-pagination">
+                <button class="page-arrow" data-page="prev" ${currentPage===0?'disabled':''} aria-label="Previous page">&#8249;</button>
+                <span class="page-indicator">Page ${currentPage+1} of ${totalPages}</span>
+                <button class="page-arrow" data-page="next" ${currentPage>=totalPages-1?'disabled':''} aria-label="Next page">&#8250;</button>
+              </div>` : ''}
               <div class="scene-note">Confirmed shows from the LV Punx Show Intake. Pending shows stay off the public feed.</div>
             </div>
             <aside class="venue-widget">
@@ -907,9 +928,15 @@
           </div>
         </div>`;
 
-      root.querySelectorAll('[data-filter]').forEach(btn=>btn.addEventListener('click',()=>{filter=btn.dataset.filter;render();}));
+      root.querySelectorAll('[data-filter]').forEach(btn=>btn.addEventListener('click',()=>{filter=btn.dataset.filter;currentPage=0;render();}));
       root.querySelectorAll('[data-venue]').forEach(el=>el.addEventListener('click',()=>{
         venueFilter = el.dataset.venue || null; // empty string on the "All" row means clear it
+        currentPage = 0;
+        render();
+      }));
+      root.querySelectorAll('[data-page]').forEach(btn=>btn.addEventListener('click',()=>{
+        if (btn.disabled) return;
+        currentPage += btn.dataset.page === 'next' ? 1 : -1;
         render();
       }));
       const prevBtn = root.querySelector('[data-carousel="prev"]');
@@ -929,6 +956,7 @@
       const input=root.querySelector('#sceneSearch');
       input.addEventListener('input',e=>{
         search=e.target.value;
+        currentPage=0;
         render();
         const newInput = root.querySelector('#sceneSearch'); // render() replaced the DOM, grab the new element
         newInput.focus();
