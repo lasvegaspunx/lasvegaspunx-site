@@ -501,7 +501,7 @@
   .public-calendar { background: var(--white); color: var(--black); min-height: 300px; padding: 18px; }
   .scene-feed { max-width: 1200px; margin: 0 auto; }
   .scene-feature { display:grid; grid-template-columns:minmax(220px, .8fr) 1.2fr; border:4px solid var(--black); box-shadow:8px 8px 0 var(--orange); margin-bottom:24px; background:var(--paper); }
-  .scene-feature-media img, .show-card-media img { cursor: zoom-in; }
+  .scene-feature, .show-card { cursor: zoom-in; }
   .flyer-lightbox {
     display: none;
     position: fixed; inset: 0;
@@ -744,8 +744,10 @@
     // Event delegation: root's content gets replaced wholesale on every
     // render(), so listen on root itself rather than on individual images.
     root.addEventListener('click', (e) => {
-      const img = e.target.closest('.scene-feature-media img, .show-card-media img');
-      if (img) openLightbox(img.src, img.alt);
+      const card = e.target.closest('.scene-feature, .show-card');
+      if (!card) return;
+      const img = card.querySelector('.scene-feature-media img, .show-card-media img');
+      if (img) openLightbox(img.src, img.alt); // no-op if this card has no flyer image
     });
 
     const escapeHtml = (value) => {
@@ -812,7 +814,7 @@
         if (filter==='allages') return isAllAges(s) && isUpcoming(d);
         if (filter==='under20') return /free|\$([0-9]|1[0-9])\b/i.test(s.price || '') && isUpcoming(d);
         if (filter==='archive') return d && d < today;
-        return true;
+        return isUpcoming(d); // 'all' and any unrecognized filter default here
       });
       if (filter==='archive') filtered = filtered.slice().reverse(); // most recently passed first
       filtered = filtered.slice(0,50);
@@ -843,7 +845,7 @@
           <div class="scene-toolbar">
             <input class="scene-search" id="sceneSearch" value="${escapeHtml(search)}" placeholder="Try searching “all ages”, a band, or a venue...">
             <div class="scene-filters">
-              ${[['upcoming','Upcoming'],['weekend','This Weekend'],['allages','All Ages'],['free','Free'],['under20','Under $20'],['all','All Shows'],['archive','Archive']].map(([v,l])=>`<button class="scene-filter ${filter===v?'active':''}" data-filter="${v}">${l}</button>`).join('')}
+              ${[['upcoming','Upcoming This Week'],['weekend','This Weekend'],['allages','All Ages'],['free','Free'],['under20','Under $20'],['all','All Upcoming Shows'],['archive','Archive']].map(([v,l])=>`<button class="scene-filter ${filter===v?'active':''}" data-filter="${v}">${l}</button>`).join('')}
             </div>
             <div class="scene-count">${filtered.length} shown · ${upcoming.length} upcoming confirmed shows</div>
           </div>
@@ -875,7 +877,13 @@
         render();
       }));
       const input=root.querySelector('#sceneSearch');
-      input.addEventListener('input',e=>{search=e.target.value; render(); input.focus(); input.setSelectionRange(search.length,search.length);});
+      input.addEventListener('input',e=>{
+        search=e.target.value;
+        render();
+        const newInput = root.querySelector('#sceneSearch'); // render() replaced the DOM, grab the new element
+        newInput.focus();
+        newInput.setSelectionRange(search.length, search.length);
+      });
     };
     fetchShows().then(render);
     // Re-poll every few minutes so a newly confirmed show shows up for
