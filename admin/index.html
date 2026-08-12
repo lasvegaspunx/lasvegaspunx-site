@@ -134,21 +134,6 @@
     margin-bottom: 12px;
     border: 2px solid var(--black);
   }
-  .status-toggle { display: flex; gap: 8px; margin-bottom: 14px; }
-  .status-toggle button {
-    flex: 1;
-    font-family: 'Anton', sans-serif;
-    font-size: 12px;
-    text-transform: uppercase;
-    letter-spacing: 0.03em;
-    padding: 8px;
-    border: 2px solid var(--black);
-    background: var(--white);
-    cursor: pointer;
-  }
-  .status-toggle button.active-pending { background: var(--orange); }
-  .status-toggle button.active-confirmed { background: var(--lime); }
-
   .btn {
     font-family: 'Anton', sans-serif;
     font-size: 14px;
@@ -215,31 +200,22 @@
   }
   .tag.free { background: var(--lime); }
   .tag.ages { background: var(--cyan); }
-  .stamp {
-    position: absolute;
-    top: 10px; right: -32px;
-    background: var(--lime);
-    color: var(--black);
-    font-family: 'Anton', sans-serif;
-    font-size: 10px;
-    letter-spacing: 0.04em;
-    padding: 3px 34px;
-    transform: rotate(35deg);
-    border-top: 1px solid var(--black);
-    border-bottom: 1px solid var(--black);
-  }
-  .stamp.pending { background: var(--orange); }
-  .card .remove {
+  .card-actions {
     position: absolute; bottom: 8px; right: 8px;
+    display: flex; gap: 6px;
+  }
+  .card .edit,
+  .card .remove {
     font-size: 10px;
     font-family: 'Anton', sans-serif;
     text-transform: uppercase;
-    background: var(--red);
     color: var(--white);
     border: 1px solid var(--black);
     padding: 3px 8px;
     cursor: pointer;
   }
+  .card .edit { background: var(--black); }
+  .card .remove { background: var(--red); }
   .empty { opacity: 0.6; font-size: 13px; padding: 20px 0; }
 
   .export-row { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; align-items: center; }
@@ -300,11 +276,8 @@
             <option>21+</option>
           </select>
         </div>
-        <div class="status-toggle">
-          <button type="button" id="btnPending" class="active-pending">Pending Review</button>
-          <button type="button" id="btnConfirmed">Confirmed</button>
-        </div>
-        <button class="btn" id="addToCalendar">Add To Calendar ↓</button>
+        <button class="btn" id="addToCalendar">Add To Board ↓</button>
+        <button class="btn ghost" id="cancelEdit" style="display:none;">Cancel Edit</button>
       </div>
     </div>
     <p class="loading-line" id="loadingLine"></p>
@@ -334,6 +307,7 @@
 let shows = [];
 let currentFilter = 'all';
 let pendingExtraction = null; // {dataUrl, mediaType}
+let editingId = null; // set while editing an existing board entry
 
 const $ = (id) => document.getElementById(id);
 
@@ -365,7 +339,14 @@ async function saveShows() {
       body: JSON.stringify(shows)
     });
     if (!res.ok) throw new Error('Bad response: ' + res.status);
-    $('saveNote').textContent = 'Saved to the live board.';
+    const result = await res.json();
+    if (Array.isArray(result.shows)) shows = result.shows;
+    if (result.syncErrors && result.syncErrors.length) {
+      $('saveNote').textContent = 'Saved, but calendar sync had issues: ' + result.syncErrors.join('; ');
+    } else {
+      $('saveNote').textContent = 'Saved to the live board.';
+    }
+    renderGrid();
   } catch (e) {
     $('saveNote').textContent = 'Could not save, changes are only on this screen. Export as backup and try again.';
   }
@@ -438,7 +419,6 @@ async function extractFlyer(dataUrl, mimeType) {
     }
 
     pendingExtraction = { dataUrl };
-    setStatus('pending');
     $('formCard').classList.remove('hidden');
     $('loadingLine').textContent = 'Got it, double-check the details before adding.';
   } catch (err) {
@@ -452,22 +432,15 @@ async function extractFlyer(dataUrl, mimeType) {
     $('f_ages').value = 'All ages';
     $('flagNote').style.display = 'none';
     pendingExtraction = { dataUrl };
-    setStatus('pending');
     $('formCard').classList.remove('hidden');
   }
 }
 
 // ---------- Status toggle ----------
-let currentStatus = 'pending';
-function setStatus(s) {
-  currentStatus = s;
-  $('btnPending').classList.toggle('active-pending', s === 'pending');
-  $('btnConfirmed').classList.toggle('active-confirmed', s === 'confirmed');
-}
-$('btnPending').addEventListener('click', () => setStatus('pending'));
-$('btnConfirmed').addEventListener('click', () => setStatus('confirmed'));
+// Removed: every entry auto-confirms on add now. See editingId / addToCalendar
+// below for how existing entries get fixed up later instead.
 
-// ---------- Add to calendar ----------
+// ---------- Add / save edits to the board ----------
 $('addToCalendar').addEventListener('click', () => {
   const title = $('f_title').value.trim();
   const date = $('f_date').value;
@@ -476,29 +449,78 @@ $('addToCalendar').addEventListener('click', () => {
     $('loadingLine').classList.add('error');
     return;
   }
-  const show = {
-    id: Date.now().toString(36),
+  const fields = {
     title,
     venue: $('f_venue').value.trim(),
     date,
     doors: $('f_doors').value.trim(),
     price: $('f_price').value.trim(),
     ages: $('f_ages').value,
-    status: currentStatus,
+    status: 'confirmed', // everything auto-confirms now, edit later if something's wrong
     flyer: pendingExtraction ? pendingExtraction.dataUrl : ''
   };
-  shows.push(show);
+
+  if (editingId) {
+    const existing = shows.find(s => s.id === editingId);
+    if (existing) {
+      Object.assign(existing, fields);
+      // Editing a title/date/venue doesn't move the calendar event, just the
+      // board entry. If you need the calendar event itself corrected, easiest
+      // is to fix it directly in Google Calendar for now.
+    }
+  } else {
+    shows.push({ id: Date.now().toString(36), ...fields });
+  }
+
   saveShows();
   renderGrid();
+  exitEditMode();
 
-  // reset form
   $('previewRow').style.display = 'none';
   $('flyerImg').src = '';
   fileInput.value = '';
   pendingExtraction = null;
-  $('loadingLine').textContent = 'Added to the board.';
+  $('loadingLine').textContent = editingId ? 'Changes saved.' : 'Added to the board.';
   $('loadingLine').classList.remove('error');
 });
+
+$('cancelEdit').addEventListener('click', () => {
+  exitEditMode();
+  $('previewRow').style.display = 'none';
+  $('flyerImg').src = '';
+  fileInput.value = '';
+  pendingExtraction = null;
+  $('loadingLine').textContent = '';
+});
+
+function enterEditMode(show) {
+  editingId = show.id;
+  pendingExtraction = show.flyer ? { dataUrl: show.flyer } : null;
+
+  $('f_title').value = show.title || '';
+  $('f_venue').value = show.venue || '';
+  $('f_date').value = show.date || '';
+  $('f_doors').value = show.doors || '';
+  $('f_price').value = show.price || '';
+  $('f_ages').value = ['All ages', '18+', '21+'].includes(show.ages) ? show.ages : 'All ages';
+  $('flagNote').style.display = 'none';
+
+  $('flyerImg').src = show.flyer || '';
+  $('previewRow').style.display = show.flyer ? 'flex' : 'none';
+  $('formCard').classList.remove('hidden');
+  $('addToCalendar').textContent = 'Save Changes ↓';
+  $('cancelEdit').style.display = 'inline-block';
+  $('loadingLine').textContent = 'Editing "' + (show.title || 'this show') + '". Update the fields and save.';
+  $('loadingLine').classList.remove('error');
+
+  $('formCard').scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function exitEditMode() {
+  editingId = null;
+  $('addToCalendar').textContent = 'Add To Board ↓';
+  $('cancelEdit').style.display = 'none';
+}
 
 // ---------- Filters ----------
 document.querySelectorAll('.chip').forEach(chip => {
@@ -548,13 +570,9 @@ function renderGrid() {
     const card = document.createElement('div');
     card.className = 'card';
 
-    const stampClass = s.status === 'confirmed' ? 'stamp' : 'stamp pending';
-    const stampText = s.status === 'confirmed' ? 'CONFIRMED' : 'PENDING';
-
     const dateLabel = s.date ? new Date(s.date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', weekday: 'short' }) : '';
 
     card.innerHTML = `
-      <div class="${stampClass}">${stampText}</div>
       ${s.flyer ? `<img class="thumb" src="${s.flyer}" alt="${s.title} flyer">` : ''}
       <div class="body">
         <h3>${escapeHtml(s.title)}</h3>
@@ -565,13 +583,24 @@ function renderGrid() {
           <span class="tag ages">${escapeHtml(s.ages)}</span>
         </div>
       </div>
-      <div class="remove" data-id="${s.id}">Remove</div>
+      <div class="card-actions">
+        <div class="edit" data-id="${s.id}">Edit</div>
+        <div class="remove" data-id="${s.id}">Remove</div>
+      </div>
     `;
     grid.appendChild(card);
   });
 
+  document.querySelectorAll('.edit').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const show = shows.find(s => s.id === btn.dataset.id);
+      if (show) enterEditMode(show);
+    });
+  });
+
   document.querySelectorAll('.remove').forEach(btn => {
     btn.addEventListener('click', () => {
+      if (btn.dataset.id === editingId) exitEditMode();
       shows = shows.filter(s => s.id !== btn.dataset.id);
       saveShows();
       renderGrid();
