@@ -501,6 +501,37 @@
   .public-calendar { background: var(--white); color: var(--black); min-height: 300px; padding: 18px; }
   .scene-feed { max-width: 1200px; margin: 0 auto; }
   .scene-feature { display:grid; grid-template-columns:minmax(220px, .8fr) 1.2fr; border:4px solid var(--black); box-shadow:8px 8px 0 var(--orange); margin-bottom:24px; background:var(--paper); }
+  .scene-feature-media img, .show-card-media img { cursor: zoom-in; }
+  .flyer-lightbox {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.92);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+  }
+  .flyer-lightbox.open { display: flex; }
+  .flyer-lightbox img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    border: 3px solid var(--white);
+  }
+  .flyer-lightbox-close {
+    position: fixed;
+    top: 18px; right: 24px;
+    font-family: 'Anton', sans-serif;
+    font-size: 28px;
+    color: var(--white);
+    background: none;
+    border: 2px solid var(--white);
+    width: 44px; height: 44px;
+    cursor: pointer;
+    line-height: 1;
+  }
+  .flyer-lightbox-close:hover { background: var(--white); color: var(--black); }
+
   .scene-feature-media { min-height:280px; background:var(--black); display:flex; align-items:center; justify-content:center; overflow:hidden; }
   .scene-feature-media img { width:100%; height:100%; object-fit:cover; display:block; }
   .scene-feature-placeholder { color:var(--white); font-family:'Anton',sans-serif; font-size:20px; text-align:center; padding:30px; text-transform:uppercase; }
@@ -535,7 +566,12 @@
   .show-card-details span { border:1px solid var(--black); padding:3px 5px; font-family:'Anton',sans-serif; font-size:9px; text-transform:uppercase; }
   .venue-widget { border:3px solid var(--black); background:var(--black); color:var(--white); padding:15px; position:sticky; top:15px; }
   .venue-widget h4 { font-family:'Bungee',sans-serif; font-size:18px; margin-bottom:12px; }
-  .venue-item { border-top:1px solid #555; padding:9px 0; display:flex; justify-content:space-between; gap:8px; font-family:'Anton',sans-serif; font-size:11px; text-transform:uppercase; }
+  .venue-item { border-top:1px solid #555; padding:9px 0; display:flex; justify-content:space-between; gap:8px; font-family:'Anton',sans-serif; font-size:11px; text-transform:uppercase; cursor:pointer; }
+  .venue-item:hover { color: var(--lime); }
+  .venue-item.active { color: var(--black); background: var(--lime); padding-left:6px; padding-right:6px; margin: 0 -6px; }
+  .venue-item.active b { color: var(--black); }
+  .venue-item-all { justify-content:center; font-size:10px; letter-spacing:0.08em; opacity:0.8; }
+  .venue-item-all:hover { opacity:1; }
   .venue-item b { color:var(--lime); }
   .scene-empty { border:3px dashed var(--black); padding:35px 20px; text-align:center; font-family:'Special Elite',monospace; }
   .scene-note { font-size:10px; opacity:.55; margin-top:15px; text-align:right; }
@@ -598,8 +634,8 @@
   </div>
 </section>
 
-<!-- ==================== CALENDAR ==================== -->
-<section id="calendar">
+<!-- ==================== THIS WEEK ==================== -->
+<section id="this-week">
   <div class="section-header">
     <h2>This Week</h2>
   </div>
@@ -610,8 +646,8 @@
   </div>
 </section>
 
-<!-- ==================== THIS WEEK ==================== -->
-<section id="this-week">
+<!-- ==================== CALENDAR ==================== -->
+<section id="calendar">
   <div class="section-header lime">
     <h2>Show Calendar</h2>
   </div>
@@ -674,7 +710,43 @@
     if (!root) return;
     let filter = 'upcoming';
     let search = '';
+    let venueFilter = null; // null = no venue narrowing, otherwise a venue name string
     let cachedShows = [];
+
+    // ---- Flyer lightbox ----
+    // One overlay element reused for every flyer click, rather than building
+    // a new one each time. Lives outside `root` so re-renders never touch it.
+    const lightbox = document.createElement('div');
+    lightbox.className = 'flyer-lightbox';
+    lightbox.innerHTML = `
+      <button class="flyer-lightbox-close" aria-label="Close">&times;</button>
+      <img src="" alt="">
+    `;
+    document.body.appendChild(lightbox);
+    const lightboxImg = lightbox.querySelector('img');
+
+    const openLightbox = (src, alt) => {
+      lightboxImg.src = src;
+      lightboxImg.alt = alt || '';
+      lightbox.classList.add('open');
+    };
+    const closeLightbox = () => {
+      lightbox.classList.remove('open');
+      lightboxImg.src = '';
+    };
+    lightbox.querySelector('.flyer-lightbox-close').addEventListener('click', closeLightbox);
+    lightbox.addEventListener('click', (e) => {
+      if (e.target === lightbox) closeLightbox(); // click on the dark backdrop, not the image itself
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeLightbox();
+    });
+    // Event delegation: root's content gets replaced wholesale on every
+    // render(), so listen on root itself rather than on individual images.
+    root.addEventListener('click', (e) => {
+      const img = e.target.closest('.scene-feature-media img, .show-card-media img');
+      if (img) openLightbox(img.src, img.alt);
+    });
 
     const escapeHtml = (value) => {
       const div = document.createElement('div');
@@ -704,20 +776,28 @@
     const isFree = s => /free/i.test(s.price || '');
     const isAllAges = s => /all\s*ages/i.test(s.ages || '');
     const isUpcoming = d => { const now=new Date(); now.setHours(0,0,0,0); return d && d >= now; };
+    const isNext10Days = d => {
+      const now=new Date(); now.setHours(0,0,0,0);
+      const cutoff=new Date(now); cutoff.setDate(cutoff.getDate()+10);
+      return d && d >= now && d <= cutoff;
+    };
 
     const render = () => {
       const shows = getShows();
       const today = new Date(); today.setHours(0,0,0,0);
       let filtered = shows.filter(s => {
         const d=parseDate(s); const hay=[s.title,s.venue,s.price,s.ages].join(' ').toLowerCase();
+        if (venueFilter && (s.venue || 'DIY / TBA').trim() !== venueFilter) return false;
         if (search && !hay.includes(search.toLowerCase())) return false;
-        if (filter==='upcoming') return isUpcoming(d);
+        if (filter==='upcoming') return isNext10Days(d);
         if (filter==='weekend') return isWeekend(d) && isUpcoming(d);
         if (filter==='free') return isFree(s) && isUpcoming(d);
         if (filter==='allages') return isAllAges(s) && isUpcoming(d);
         if (filter==='under20') return /free|\$([0-9]|1[0-9])\b/i.test(s.price || '') && isUpcoming(d);
+        if (filter==='archive') return d && d < today;
         return true;
       });
+      if (filter==='archive') filtered = filtered.slice().reverse(); // most recently passed first
       filtered = filtered.slice(0,50);
       const upcoming = shows.filter(s=>isUpcoming(parseDate(s)));
       const featured = upcoming[0];
@@ -744,9 +824,9 @@
           </article>` : ''}
 
           <div class="scene-toolbar">
-            <input class="scene-search" id="sceneSearch" value="${escapeHtml(search)}" placeholder="Try “punk”, “all ages”, a band, or a venue...">
+            <input class="scene-search" id="sceneSearch" value="${escapeHtml(search)}" placeholder="Try searching “all ages”, a band, or a venue...">
             <div class="scene-filters">
-              ${[['upcoming','Upcoming'],['weekend','This Weekend'],['allages','All Ages'],['free','Free'],['under20','Under $20'],['all','All Shows']].map(([v,l])=>`<button class="scene-filter ${filter===v?'active':''}" data-filter="${v}">${l}</button>`).join('')}
+              ${[['upcoming','Upcoming'],['weekend','This Weekend'],['allages','All Ages'],['free','Free'],['under20','Under $20'],['all','All Shows'],['archive','Archive']].map(([v,l])=>`<button class="scene-filter ${filter===v?'active':''}" data-filter="${v}">${l}</button>`).join('')}
             </div>
             <div class="scene-count">${filtered.length} shown · ${upcoming.length} upcoming confirmed shows</div>
           </div>
@@ -765,13 +845,18 @@
               <div class="scene-note">Confirmed shows from the LV Punx Show Intake. Pending shows stay off the public feed.</div>
             </div>
             <aside class="venue-widget">
-              <h4>Find Your Room</h4>
-              ${venues.length ? venues.map(([v,n])=>`<div class="venue-item"><span>${escapeHtml(v)}</span><b>${n}</b></div>`).join('') : '<div class="venue-item">No venues yet</div>'}
+              <h4>Find Your Venue</h4>
+              ${venues.length ? venues.map(([v,n])=>`<div class="venue-item ${venueFilter===v?'active':''}" data-venue="${escapeHtml(v)}"><span>${escapeHtml(v)}</span><b>${n}</b></div>`).join('') : '<div class="venue-item">No venues yet</div>'}
+              <div class="venue-item venue-item-all ${venueFilter===null?'active':''}" data-venue="">All</div>
             </aside>
           </div>
         </div>`;
 
       root.querySelectorAll('[data-filter]').forEach(btn=>btn.addEventListener('click',()=>{filter=btn.dataset.filter;render();}));
+      root.querySelectorAll('[data-venue]').forEach(el=>el.addEventListener('click',()=>{
+        venueFilter = el.dataset.venue || null; // empty string on the "All" row means clear it
+        render();
+      }));
       const input=root.querySelector('#sceneSearch');
       input.addEventListener('input',e=>{search=e.target.value; render(); input.focus(); input.setSelectionRange(search.length,search.length);});
     };
