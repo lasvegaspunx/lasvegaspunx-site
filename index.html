@@ -3,19 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Las Vegas Punx — Las Vegas Punk Rock Show Calendar</title>
-<meta name="description" content="The ultimate digital hub for the Las Vegas punk rock scene. Show calendar, weekly listings, and local punk news from the 702.">
-
-<!-- Open Graph -->
-<meta property="og:title" content="Las Vegas Punx">
-<meta property="og:description" content="Las Vegas Punk Rock Show Calendar & Local Music News">
-<meta property="og:type" content="website">
-
-<!-- Fonts: free Google Fonts that approximate Dark London / Almaq Rough / P22 Typewriter -->
+<title>LV Punx — Show Intake</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Anton&family=Special+Elite&family=Bungee+Shade&display=swap" rel="stylesheet">
-
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Anton&family=Special+Elite&display=swap" rel="stylesheet">
 <style>
   :root {
     --black: #000000;
@@ -24,762 +15,626 @@
     --lime: #9DEB00;
     --cyan: #00C8EB;
     --paper: #f0ebe0;
+    --red: #E8382C;
   }
-
   * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  html { scroll-behavior: smooth; }
-
   body {
     background: var(--black);
     color: var(--white);
     font-family: 'Special Elite', 'Courier New', monospace;
-    font-size: 16px;
-    line-height: 1.6;
-    overflow-x: hidden;
+    font-size: 15px;
+    line-height: 1.5;
+    padding: 24px 16px 80px;
   }
-
-  /* Halftone/noise overlay on body for grit */
   body::before {
     content: '';
     position: fixed;
     inset: 0;
     pointer-events: none;
-    z-index: 1;
-    opacity: 0.06;
-    background-image:
-      radial-gradient(circle at 1px 1px, var(--white) 1px, transparent 0);
+    z-index: 0;
+    opacity: 0.05;
+    background-image: radial-gradient(circle at 1px 1px, var(--white) 1px, transparent 0);
     background-size: 3px 3px;
   }
+  .wrap { max-width: 920px; margin: 0 auto; position: relative; z-index: 1; }
 
-  /* ==================== HEADER ==================== */
-  header {
-    padding: 24px 20px 24px;
-    text-align: center;
-    border-bottom: 4px solid var(--orange);
-    position: relative;
-    z-index: 2;
-  }
-
-  .logo {
-    display: block;
-    width: min(560px, 82vw);
-    height: auto;
-    margin: 0 auto;
-  }
-
-  .tagline {
-    margin-top: 18px;
+  header { text-align: center; margin-bottom: 32px; }
+  .eyebrow {
+    display: inline-block;
     font-family: 'Special Elite', monospace;
-    font-size: 13px;
-    color: var(--white);
-    background: var(--black);
-    display: inline-block;
-    padding: 4px 10px;
+    font-size: 12px;
+    letter-spacing: 0.1em;
     border: 1px solid var(--white);
+    padding: 3px 10px;
+    margin-bottom: 12px;
   }
-
-  /* ==================== NAV ==================== */
-  nav {
-    background: var(--black);
-    border-bottom: 2px solid var(--white);
-    padding: 14px 20px;
-    text-align: center;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-  }
-
-  nav a {
-    display: inline-block;
-    color: var(--white);
-    text-decoration: none;
-    font-family: 'Anton', sans-serif;
-    font-size: 18px;
-    letter-spacing: 0.08em;
+  h1 {
+    font-family: 'Bungee', sans-serif;
+    font-size: clamp(28px, 6vw, 44px);
     text-transform: uppercase;
-    padding: 6px 14px;
-    margin: 4px 2px;
-    background: var(--black);
-    border: 2px solid var(--white);
-    transition: all 0.15s ease;
+    letter-spacing: 0.02em;
   }
+  .sub { font-size: 13px; opacity: 0.7; margin-top: 8px; max-width: 520px; margin-left: auto; margin-right: auto; }
 
-  nav a:hover {
-    background: var(--orange);
-    color: var(--black);
-    border-color: var(--orange);
-    transform: rotate(-1.5deg) scale(1.05);
-  }
-
-  /* ==================== SECTIONS ==================== */
-  main {
-    position: relative;
-    z-index: 2;
-  }
-
-  section {
-    padding: 60px 20px;
-    max-width: 1200px;
-    margin: 0 auto;
-    position: relative;
-  }
-
-  /* Section headers — orange torn-banner look */
   .section-header {
     display: inline-block;
     background: var(--orange);
-    padding: 12px 28px 10px;
-    margin-bottom: 32px;
-    transform: rotate(-1.5deg);
-    box-shadow: 4px 4px 0 var(--black), 4px 4px 0 1px var(--white);
-    position: relative;
-  }
-
-  .section-header h2 {
-    font-family: 'Bungee', sans-serif;
-    font-size: clamp(28px, 5vw, 48px);
     color: var(--black);
-    letter-spacing: 0.03em;
+    padding: 8px 18px 6px;
+    margin-bottom: 18px;
+    transform: rotate(-1deg);
+    box-shadow: 3px 3px 0 var(--black), 3px 3px 0 1px var(--white);
+    font-family: 'Anton', sans-serif;
+    font-size: 18px;
+    letter-spacing: 0.04em;
     text-transform: uppercase;
-    line-height: 1;
   }
-
-  /* Gritty section header alternate */
   .section-header.lime { background: var(--lime); }
   .section-header.cyan { background: var(--cyan); }
-  .section-header.white { background: var(--white); }
 
-  /* ==================== ABOUT ==================== */
-  #about {
-    background: var(--black);
+  section { margin-bottom: 44px; }
+
+  /* Upload block */
+  .dropzone {
+    border: 3px dashed var(--white);
+    background: rgba(255,255,255,0.03);
+    padding: 32px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.15s ease;
   }
+  .dropzone:hover, .dropzone.drag { border-color: var(--orange); background: rgba(235,106,0,0.08); }
+  .dropzone input { display: none; }
+  .dropzone p { font-size: 14px; opacity: 0.8; }
+  .dropzone .big { font-family: 'Anton', sans-serif; font-size: 18px; text-transform: uppercase; margin-bottom: 6px; letter-spacing: 0.03em; }
 
-  .about-content {
-    max-width: 760px;
+  .preview-row { display: flex; gap: 20px; margin-top: 20px; flex-wrap: wrap; }
+  .flyer-preview {
+    width: 180px; flex-shrink: 0;
+    border: 3px solid var(--white);
+    box-shadow: 5px 5px 0 var(--orange);
   }
+  .flyer-preview img { display: block; width: 100%; height: auto; }
 
-  .about-content p {
-    font-family: 'Special Elite', monospace;
-    font-size: 17px;
-    line-height: 1.7;
-    margin-bottom: 18px;
-    color: var(--white);
-  }
-
-  .about-content a {
-    color: var(--orange);
-    text-decoration: underline;
-    text-decoration-thickness: 2px;
-    text-underline-offset: 3px;
-  }
-
-  .about-content a:hover {
-    background: var(--orange);
-    color: var(--black);
-  }
-
-  /* ==================== CALENDAR ==================== */
-  #calendar {
-    background: var(--white);
-    color: var(--black);
-  }
-
-  #calendar .section-header {
-    background: var(--black);
-    box-shadow: 4px 4px 0 var(--orange);
-  }
-
-  #calendar .section-header h2 {
-    color: var(--white);
-  }
-
-  .calendar-wrap {
-    background: var(--black);
-    padding: 4px;
-    border: 4px solid var(--black);
-    box-shadow: 8px 8px 0 var(--orange);
-    overflow: hidden;
-  }
-
-  .calendar-wrap iframe {
-    display: block;
-    width: 100%;
-    height: 700px;
-    border: 0;
-    background: var(--white);
-  }
-
-  /* ==================== THIS WEEK ==================== */
-  #this-week {
-    background: var(--black);
-    background-image:
-      radial-gradient(circle at 20% 30%, rgba(235,106,0,0.15) 0%, transparent 50%),
-      radial-gradient(circle at 80% 70%, rgba(0,200,235,0.1) 0%, transparent 50%);
-  }
-
-  .week-card {
+  .form-card {
+    flex: 1;
+    min-width: 260px;
     background: var(--paper);
     color: var(--black);
-    padding: 30px;
-    margin-bottom: 24px;
+    padding: 20px;
     border: 3px solid var(--black);
-    box-shadow: 6px 6px 0 var(--orange);
-    position: relative;
+    box-shadow: 5px 5px 0 var(--cyan);
   }
-
-  .week-card::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background-image: radial-gradient(circle at 1px 1px, rgba(0,0,0,0.15) 1px, transparent 0);
-    background-size: 4px 4px;
-    pointer-events: none;
-    opacity: 0.4;
-  }
-
-  .week-card h3 {
+  .form-card.hidden { display: none; }
+  .field { margin-bottom: 12px; }
+  .field label {
+    display: block;
     font-family: 'Anton', sans-serif;
-    font-size: 28px;
+    font-size: 12px;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    background: var(--black);
-    color: var(--white);
-    display: inline-block;
-    padding: 4px 14px 2px;
-    transform: rotate(-1deg);
-    margin-bottom: 12px;
-    position: relative;
-    z-index: 2;
+    margin-bottom: 4px;
   }
-
-  .week-card p {
-    font-family: 'Special Elite', monospace;
-    font-size: 16px;
-    color: var(--black);
-    position: relative;
-    z-index: 2;
-  }
-
-  .week-cta {
-    display: inline-block;
-    margin-top: 16px;
-    background: var(--orange);
-    color: var(--black);
-    padding: 10px 22px;
-    text-decoration: none;
-    font-family: 'Anton', sans-serif;
-    font-size: 18px;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    border: 3px solid var(--black);
-    box-shadow: 4px 4px 0 var(--black);
-    transition: all 0.15s ease;
-    position: relative;
-    z-index: 2;
-  }
-
-  .week-cta:hover {
-    transform: translate(-2px, -2px) rotate(-1deg);
-    box-shadow: 6px 6px 0 var(--black);
-  }
-
-  /* ==================== INSTAGRAM ==================== */
-  #instagram {
-    background: var(--white);
-    color: var(--black);
-    text-align: left;
-  }
-
-  #instagram .section-header {
-    background: var(--cyan);
-    box-shadow: 4px 4px 0 var(--black);
-  }
-
-  .ig-prompt {
-    font-family: 'Special Elite', monospace;
-    font-size: 18px;
-    color: var(--black);
-    margin-bottom: 24px;
-    max-width: 600px;
-  }
-
-  .ig-button {
-    display: inline-block;
-    background: var(--black);
-    color: var(--white);
-    padding: 16px 32px;
-    text-decoration: none;
-    font-family: 'Bungee', sans-serif;
-    font-size: 22px;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    border: 4px solid var(--black);
-    box-shadow: 6px 6px 0 var(--cyan), 6px 6px 0 1px var(--black);
-    transition: all 0.15s ease;
-  }
-
-  .ig-button:hover {
-    transform: translate(-3px, -3px) rotate(-1deg);
-    box-shadow: 9px 9px 0 var(--cyan), 9px 9px 0 1px var(--black);
-  }
-
-  /* ==================== SUBMIT ==================== */
-  #submit {
-    background: var(--orange);
-    color: var(--black);
-    background-image:
-      radial-gradient(circle at 1px 1px, rgba(0,0,0,0.2) 1px, transparent 0);
-    background-size: 6px 6px;
-  }
-
-  #submit .section-header {
-    background: var(--black);
-    box-shadow: 4px 4px 0 var(--white);
-  }
-
-  #submit .section-header h2 {
-    color: var(--white);
-  }
-
-  .submit-content {
-    max-width: 700px;
-  }
-
-  .submit-content p {
-    font-family: 'Special Elite', monospace;
-    font-size: 18px;
-    color: var(--black);
-    margin-bottom: 24px;
-    background: var(--white);
-    display: inline-block;
-    padding: 8px 14px;
-  }
-
-  .submit-button {
-    display: inline-block;
-    background: var(--black);
-    color: var(--white);
-    padding: 18px 40px;
-    text-decoration: none;
-    font-family: 'Bungee', sans-serif;
-    font-size: 26px;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    border: 4px solid var(--black);
-    box-shadow: 8px 8px 0 var(--white), 8px 8px 0 2px var(--black);
-    transition: all 0.15s ease;
-  }
-
-  .submit-button:hover {
-    transform: translate(-4px, -4px) rotate(-1.5deg);
-    box-shadow: 12px 12px 0 var(--white), 12px 12px 0 2px var(--black);
-  }
-
-  /* ==================== CONTACT ==================== */
-  #contact {
-    background: var(--black);
-  }
-
-  #contact .section-header {
-    background: var(--lime);
-    box-shadow: 4px 4px 0 var(--white);
-  }
-
-  .contact-content {
-    max-width: 700px;
-  }
-
-  .contact-content p {
-    font-family: 'Special Elite', monospace;
-    font-size: 18px;
-    color: var(--white);
-    margin-bottom: 18px;
-  }
-
-  .email-card {
-    display: inline-block;
-    background: var(--white);
-    color: var(--black);
-    padding: 14px 24px;
-    font-family: 'Special Elite', monospace;
-    font-size: 20px;
-    text-decoration: none;
-    border: 3px solid var(--white);
-    box-shadow: 5px 5px 0 var(--lime);
-    transition: all 0.15s ease;
-    transform: rotate(-1deg);
-  }
-
-  .email-card:hover {
-    transform: rotate(1deg) scale(1.03);
-    box-shadow: 8px 8px 0 var(--lime);
-  }
-
-  /* ==================== FOOTER ==================== */
-  footer {
-    background: var(--black);
-    border-top: 4px solid var(--orange);
-    padding: 40px 20px;
-    text-align: center;
-    position: relative;
-    z-index: 2;
-  }
-
-  footer p {
+  .field input, .field select {
+    width: 100%;
+    padding: 8px 10px;
     font-family: 'Special Elite', monospace;
     font-size: 14px;
-    color: var(--white);
-    opacity: 0.7;
-    margin-bottom: 10px;
-  }
-
-  footer .small {
-    font-size: 12px;
-    opacity: 0.5;
-  }
-
-  .footer-links {
-    margin-bottom: 18px;
-  }
-
-  .footer-links a {
-    color: var(--white);
-    font-family: 'Anton', sans-serif;
-    font-size: 15px;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    text-decoration: none;
-    padding: 4px 10px;
-    margin: 0 2px;
-    border: 2px solid var(--white);
-    display: inline-block;
-    transition: all 0.15s ease;
-  }
-
-  .footer-links a:hover {
-    background: var(--orange);
-    border-color: var(--orange);
+    border: 2px solid var(--black);
+    background: var(--white);
     color: var(--black);
   }
-
-  .footer-links a.admin-link {
-    font-size: 11px;
-    padding: 2px 7px;
-    opacity: 0.45;
-    border-color: currentColor;
+  .field-row { display: flex; gap: 10px; }
+  .field-row .field { flex: 1; }
+  .flag-note {
+    font-size: 12px;
+    background: var(--red);
+    color: var(--white);
+    padding: 8px 10px;
+    margin-bottom: 12px;
+    border: 2px solid var(--black);
   }
-
-  .footer-links a.admin-link:hover {
-    opacity: 1;
+  .btn {
+    font-family: 'Anton', sans-serif;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 10px 20px;
+    border: 3px solid var(--black);
+    background: var(--black);
+    color: var(--white);
+    cursor: pointer;
+    box-shadow: 4px 4px 0 var(--orange);
+    transition: all 0.12s ease;
   }
+  .btn:hover { transform: translate(-2px,-2px); box-shadow: 6px 6px 0 var(--orange); }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: 4px 4px 0 var(--orange); }
+  .btn.ghost { background: var(--white); color: var(--black); box-shadow: 4px 4px 0 var(--black); }
+  .btn.small { padding: 6px 12px; font-size: 11px; box-shadow: 3px 3px 0 var(--black); }
 
-  /* ==================== DECORATIVE ELEMENTS ==================== */
-  .tape {
-    position: absolute;
-    background: rgba(255, 255, 255, 0.5);
-    width: 80px;
-    height: 22px;
-    z-index: 5;
-    pointer-events: none;
+  .loading-line { font-size: 13px; opacity: 0.75; margin-top: 10px; }
+  .loading-line.error { color: var(--red); opacity: 1; font-weight: bold; }
+
+  /* Filter chips */
+  .chip-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+  .chip {
+    font-family: 'Anton', sans-serif;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    padding: 7px 14px;
+    border: 2px solid var(--white);
+    background: transparent;
+    color: var(--white);
+    cursor: pointer;
   }
+  .chip.active { background: var(--cyan); color: var(--black); border-color: var(--cyan); }
 
-  .tape.tl { top: -10px; left: 30px; transform: rotate(-15deg); }
-  .tape.tr { top: -10px; right: 30px; transform: rotate(12deg); }
-
-  /* ==================== ANIMATIONS ==================== */
-  @keyframes shake-in {
-    0% { transform: translateY(20px) rotate(-3deg); opacity: 0; }
-    100% { transform: translateY(0) rotate(0); opacity: 1; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 18px; }
+  .card {
+    background: var(--paper);
+    color: var(--black);
+    border: 3px solid var(--black);
+    box-shadow: 5px 5px 0 var(--orange);
+    overflow: hidden;
+    position: relative;
   }
-
-  .section-header {
-    animation: shake-in 0.5s cubic-bezier(0.36, 0, 0.66, -0.56) backwards;
+  .card .thumb { width: 100%; aspect-ratio: 4/3; object-fit: cover; border-bottom: 3px solid var(--black); background: #ddd; }
+  .card .body { padding: 14px; }
+  .card h3 {
+    font-family: 'Anton', sans-serif;
+    font-size: 16px;
+    text-transform: uppercase;
+    line-height: 1.15;
+    margin-bottom: 6px;
   }
-
-  /* ==================== SCENE FEED WIDGETS ==================== */
-  .public-calendar { background: var(--white); color: var(--black); min-height: 300px; padding: 18px; }
-  .scene-feed { max-width: 1200px; margin: 0 auto; }
-  .scene-feature { display:grid; grid-template-columns:minmax(220px, .8fr) 1.2fr; border:4px solid var(--black); box-shadow:8px 8px 0 var(--orange); margin-bottom:24px; background:var(--paper); }
-  .scene-feature-media { min-height:280px; background:var(--black); display:flex; align-items:center; justify-content:center; overflow:hidden; }
-  .scene-feature-media img { width:100%; height:100%; object-fit:cover; display:block; }
-  .scene-feature-placeholder { color:var(--white); font-family:'Anton',sans-serif; font-size:20px; text-align:center; padding:30px; text-transform:uppercase; }
-  .scene-feature-copy { padding:26px; display:flex; flex-direction:column; justify-content:center; }
-  .scene-eyebrow { font-family:'Anton',sans-serif; text-transform:uppercase; letter-spacing:.08em; font-size:12px; opacity:.65; margin-bottom:8px; }
-  .scene-feature h3 { font-family:'Bungee',sans-serif; font-size:clamp(25px,4vw,48px); line-height:1; margin-bottom:16px; }
-  .scene-meta { display:flex; flex-wrap:wrap; gap:7px; margin:10px 0 18px; }
-  .scene-pill { border:2px solid var(--black); padding:5px 8px; font-family:'Anton',sans-serif; font-size:11px; text-transform:uppercase; background:var(--white); }
-  .scene-pill.hot { background:var(--orange); }
-  .scene-pill.free { background:var(--lime); }
-  .scene-pill.age { background:var(--cyan); }
-  .scene-feature-date { font-family:'Bungee',sans-serif; font-size:17px; text-transform:uppercase; }
-  .scene-toolbar { border:3px solid var(--black); background:var(--paper); padding:14px; margin-bottom:18px; }
-  .scene-search { width:100%; border:3px solid var(--black); background:var(--white); padding:12px; font-family:'Special Elite',monospace; font-size:14px; margin-bottom:12px; }
-  .scene-filters { display:flex; gap:7px; flex-wrap:wrap; }
-  .scene-filter { border:2px solid var(--black); background:var(--white); padding:7px 10px; font-family:'Anton',sans-serif; text-transform:uppercase; cursor:pointer; }
-  .scene-filter.active { background:var(--orange); }
-  .scene-filter:hover { transform:translate(-1px,-1px); }
-  .scene-count { font-size:11px; opacity:.65; margin-top:10px; text-transform:uppercase; }
-  .scene-layout { display:grid; grid-template-columns:1fr 290px; gap:18px; align-items:start; }
-  .show-list { display:grid; gap:12px; }
-  .show-card { display:grid; grid-template-columns:110px 1fr; border:3px solid var(--black); background:var(--white); box-shadow:5px 5px 0 var(--black); overflow:hidden; }
-  .show-card:hover { transform:translate(-2px,-2px); box-shadow:7px 7px 0 var(--orange); }
-  .show-card-media { min-height:150px; background:var(--black); overflow:hidden; display:flex; align-items:center; justify-content:center; }
-  .show-card-media img { width:100%; height:100%; object-fit:cover; display:block; }
-  .show-card-media span { color:var(--white); font-family:'Anton',sans-serif; font-size:11px; text-align:center; padding:10px; text-transform:uppercase; }
-  .show-card-body { padding:13px; }
-  .show-card-date { font-family:'Bungee',sans-serif; font-size:12px; color:var(--orange); text-transform:uppercase; }
-  .show-card h4 { font-family:'Anton',sans-serif; font-size:22px; line-height:1.05; text-transform:uppercase; margin:4px 0 5px; }
-  .show-card-venue { font-family:'Special Elite',monospace; font-size:12px; margin-bottom:9px; }
-  .show-card-details { display:flex; flex-wrap:wrap; gap:5px; }
-  .show-card-details span { border:1px solid var(--black); padding:3px 5px; font-family:'Anton',sans-serif; font-size:9px; text-transform:uppercase; }
-  .venue-widget { border:3px solid var(--black); background:var(--black); color:var(--white); padding:15px; position:sticky; top:15px; }
-  .venue-widget h4 { font-family:'Bungee',sans-serif; font-size:18px; margin-bottom:12px; }
-  .venue-item { border-top:1px solid #555; padding:9px 0; display:flex; justify-content:space-between; gap:8px; font-family:'Anton',sans-serif; font-size:11px; text-transform:uppercase; }
-  .venue-item b { color:var(--lime); }
-  .scene-empty { border:3px dashed var(--black); padding:35px 20px; text-align:center; font-family:'Special Elite',monospace; }
-  .scene-note { font-size:10px; opacity:.55; margin-top:15px; text-align:right; }
-  /* ==================== RESPONSIVE ==================== */
-  @media (max-width: 600px) {
-    section { padding: 40px 16px; }
-    .week-card { padding: 20px; box-shadow: 4px 4px 0 var(--orange); }
-    .scene-layout { grid-template-columns:1fr; } .venue-widget { position:static; } .scene-feature { grid-template-columns:1fr; } .scene-feature-media { min-height:220px; } .show-card { grid-template-columns:85px 1fr; } .show-card-media { min-height:125px; }
-    nav { padding: 10px 8px; }
-    nav a {
-      font-size: 12px;
-      letter-spacing: 0.04em;
-      padding: 4px 8px;
-      margin: 2px 1px;
-      border-width: 1px;
-    }
-    .submit-button { font-size: 18px; padding: 14px 24px; }
-    .ig-button { font-size: 16px; padding: 12px 22px; }
-    .footer-links a { font-size: 13px; padding: 3px 8px; }
+  .card .meta { font-size: 12px; margin-bottom: 3px; }
+  .card .tags { margin-top: 8px; display: flex; gap: 6px; flex-wrap: wrap; }
+  .tag {
+    font-size: 10px;
+    font-family: 'Anton', sans-serif;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    padding: 3px 7px;
+    border: 1px solid var(--black);
   }
+  .tag.free { background: var(--lime); }
+  .tag.ages { background: var(--cyan); }
+  .card-actions {
+    position: absolute; bottom: 8px; right: 8px;
+    display: flex; gap: 6px;
+  }
+  .card .edit,
+  .card .remove {
+    font-size: 10px;
+    font-family: 'Anton', sans-serif;
+    text-transform: uppercase;
+    color: var(--white);
+    border: 1px solid var(--black);
+    padding: 3px 8px;
+    cursor: pointer;
+  }
+  .card .edit { background: var(--black); }
+  .card .remove { background: var(--red); }
+  .empty { opacity: 0.6; font-size: 13px; padding: 20px 0; }
+
+  .export-row { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; align-items: center; }
+  .save-note { font-size: 11px; opacity: 0.55; }
 </style>
 </head>
 <body>
 
-<!-- ==================== HEADER ==================== -->
-<header>
-  <img class="logo" src="data:image/png;base64,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" alt="Las Vegas Punx">
-  <div class="tagline">// LAS VEGAS PUNK ROCK SHOW CALENDAR //</div>
-</header>
+<div class="wrap" id="mainWrap">
 
-<!-- ==================== NAV ==================== -->
-<nav>
-  <a href="#about">About</a>
-  <a href="#this-week">This Week</a>
-  <a href="#calendar">Calendar</a>
-  <a href="#submit">Add A Show</a>
-  <a href="#instagram">Instagram</a>
-  <a href="https://www.suckerpunk.com/" target="_blank" rel="noopener">Sucker Punk Zine</a>
-  <a href="https://www.etsy.com/shop/suckerpunkshop" target="_blank" rel="noopener">Merch</a>
-  <a href="#contact">Contact</a>
-</nav>
+  <header>
+    <div class="eyebrow">// DRAFT TOOL //</div>
+    <h1>Show Intake</h1>
+    <p class="sub">Upload a flyer, let it read the details, check them yourself, add it to the list. Only shows marked Confirmed show up on the public site.</p>
+  </header>
 
-<main>
-
-<!-- ==================== ABOUT ==================== -->
-<section id="about">
-  <div class="section-header">
-    <h2>About</h2>
-  </div>
-  <div class="about-content">
-    <p>
-      Las Vegas Punx is the ultimate digital hub for the Las Vegas punk rock scene. Whether you're a local looking for DIY basement shows or a tourist hunting for punk rock concerts in Las Vegas, our event calendar has you covered.
-    </p>
-    <p>
-      We track everything from legendary acts hitting the Backstage Bar and House of Blues to underground gigs at The Double Down and The Dive Bar. Our mission is to connect fans with local Vegas bands, provide the latest punk music news, and make sure you never miss a beat in the 702.
-    </p>
-    <p>
-      Check our weekly show listings to see who's playing tonight, or <a href="#submit">submit your own show</a> to get the word out to the community. For opinions, interviews, and everything we can't fit on a flyer, head over to <a href="https://www.suckerpunk.com/" target="_blank" rel="noopener">Sucker Punk</a>.
-    </p>
-  </div>
-</section>
-
-<!-- ==================== CALENDAR ==================== -->
-<section id="calendar">
-  <div class="section-header">
-    <h2>This Week</h2>
-  </div>
-  <div class="calendar-wrap">
-    <div id="lvpunx-public-calendar" class="public-calendar">
-      <div class="calendar-loading">Loading the 702...</div>
+  <section>
+    <div class="section-header">01 — Upload A Flyer</div>
+    <div class="dropzone" id="dropzone">
+      <div class="big">Drop a flyer image here</div>
+      <p>or click to choose a file — jpg, png, whatever you've got</p>
+      <input type="file" id="fileInput" accept="image/*">
     </div>
-  </div>
-</section>
 
-<!-- ==================== THIS WEEK ==================== -->
-<section id="this-week">
-  <div class="section-header lime">
-    <h2>Show Calendar</h2>
-  </div>
-  <div class="calendar-wrap week-calendar-wrap">
-    <iframe src="https://calendar.google.com/calendar/embed?src=8e0697790fa0d47cd3f926736e8dffd1212bee27dd4b882155503857571a19e7%40group.calendar.google.com&ctz=America%2FLos_Angeles" frameborder="0" scrolling="no" title="Las Vegas Punx This Week Calendar"></iframe>
-  </div>
-</section>
+    <div class="preview-row" id="previewRow" style="display:none;">
+      <div class="flyer-preview"><img id="flyerImg" src="" alt="Flyer preview"></div>
+      <div class="form-card" id="formCard">
+        <div id="flagNote" style="display:none;" class="flag-note"></div>
+        <div class="field">
+          <label>Title</label>
+          <input type="text" id="f_title">
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>Venue</label>
+            <input type="text" id="f_venue">
+          </div>
+          <div class="field">
+            <label>Date</label>
+            <input type="date" id="f_date">
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>Doors</label>
+            <input type="text" id="f_doors" placeholder="e.g. 8:00 PM">
+          </div>
+          <div class="field">
+            <label>Price</label>
+            <input type="text" id="f_price" placeholder="e.g. Free / $10">
+          </div>
+        </div>
+        <div class="field">
+          <label>Ages</label>
+          <select id="f_ages">
+            <option>All ages</option>
+            <option>18+</option>
+            <option>21+</option>
+          </select>
+        </div>
+        <button class="btn" id="addToCalendar">Add To Board ↓</button>
+        <button class="btn ghost" id="cancelEdit" style="display:none;">Cancel Edit</button>
+      </div>
+    </div>
+    <p class="loading-line" id="loadingLine"></p>
+  </section>
 
-<!-- ==================== INSTAGRAM ==================== -->
-<section id="instagram">
-  <div class="section-header cyan">
-    <h2>Follow on IG</h2>
-  </div>
-  <p class="ig-prompt">
-    Daily flyers, mid-week updates, lineup changes, and last-minute show drops, all on Instagram. The fastest way to know what's playing tonight.
-  </p>
-  <a class="ig-button" href="https://www.instagram.com/lasvegaspunx/" target="_blank" rel="noopener">@lasvegaspunx</a>
-</section>
+  <section>
+    <div class="section-header cyan">02 — This Week's Board</div>
+    <div class="chip-row" id="chipRow">
+      <button class="chip active" data-filter="all">All</button>
+      <button class="chip" data-filter="tonight">Tonight</button>
+      <button class="chip" data-filter="weekend">This Weekend</button>
+      <button class="chip" data-filter="free">Free</button>
+      <button class="chip" data-filter="allages">All Ages</button>
+    </div>
+    <div class="grid" id="grid"></div>
+    <p class="empty" id="emptyMsg" style="display:none;">Nothing on the board yet. Upload a flyer above to get started.</p>
+    <div class="export-row">
+      <button class="btn ghost small" id="exportBtn">Export JSON ↓</button>
+      <button class="btn ghost small" id="resetBtn">Clear Board</button>
+      <span class="save-note" id="saveNote">Loading saved shows…</span>
+    </div>
+  </section>
 
-<!-- ==================== SUBMIT ==================== -->
-<section id="submit">
-  <div class="section-header">
-    <h2>Add A Show</h2>
-  </div>
-  <div class="submit-content">
-    <p>Booking a show? Playing a show? Promoting a show? Get it on the calendar. Submit it here and we'll get the word out to the Vegas punk community.</p>
-    <a class="submit-button" href="https://docs.google.com/forms/d/e/1FAIpQLSf4mUA8vxcg54bPOAlBY02agZGqZPoEkprFynSDphWoOV7QGA/viewform" target="_blank" rel="noopener">Submit Show →</a>
-  </div>
-</section>
-
-<!-- ==================== CONTACT ==================== -->
-<section id="contact">
-  <div class="section-header lime">
-    <h2>Contact</h2>
-  </div>
-  <div class="contact-content">
-    <p>Tips, press, band submissions, broken links, corrections, weird ideas, all welcome.</p>
-    <a class="email-card" href="mailto:lasvegaspunx@gmail.com">lasvegaspunx@gmail.com</a>
-  </div>
-</section>
-
-</main>
-
-<!-- ==================== FOOTER ==================== -->
-<footer>
-  <div class="footer-links">
-    <a href="https://www.suckerpunk.com/" target="_blank" rel="noopener">Sucker Punk Zine</a>
-    <a href="https://www.etsy.com/shop/suckerpunkshop" target="_blank" rel="noopener">Merch</a>
-    <a href="https://www.instagram.com/lasvegaspunx/" target="_blank" rel="noopener">Instagram</a>
-    <a href="/admin" class="admin-link">Admin</a>
-  </div>
-  <p>// LAS VEGAS PUNX // EST. IN THE 702 //</p>
-  <p class="small">Built by punks, for punks. No ads. No sponsors. No bullshit.</p>
-</footer>
-
+</div>
 
 <script>
-  (() => {
-    const root = document.getElementById('lvpunx-public-calendar');
-    if (!root) return;
-    let filter = 'upcoming';
-    let search = '';
-    let cachedShows = [];
+let shows = [];
+let currentFilter = 'all';
+let pendingExtraction = null; // {dataUrl, mediaType}
+let editingId = null; // set while editing an existing board entry
 
-    const escapeHtml = (value) => {
-      const div = document.createElement('div');
-      div.textContent = value == null ? '' : String(value);
-      return div.innerHTML;
-    };
-    // Pulls the shared, confirmed-only show list from the live API
-    // (Cloudflare Pages Function backed by KV). Falls back to whatever
-    // was last successfully loaded if a fetch fails.
-    const fetchShows = async () => {
-      try {
-        const res = await fetch('/api/shows', { cache: 'no-store' });
-        if (!res.ok) throw new Error('Bad response: ' + res.status);
-        const shows = await res.json();
-        cachedShows = shows.filter(s => s.status === 'confirmed' && s.date)
-          .sort((a,b) => String(a.date).localeCompare(String(b.date)));
-      } catch (e) {
-        // keep showing the last good data rather than blanking the section
-      }
-      return cachedShows;
-    };
-    const getShows = () => cachedShows;
-    const parseDate = s => { const d = new Date((s.date || '') + 'T12:00:00'); return isNaN(d) ? null : d; };
-    const dateLabel = d => d ? d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'}) : 'DATE TBA';
-    const longDate = d => d ? d.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'}) : 'Date TBA';
-    const isWeekend = d => d && [5,6].includes(d.getDay());
-    const isFree = s => /free/i.test(s.price || '');
-    const isAllAges = s => /all\s*ages/i.test(s.ages || '');
-    const isUpcoming = d => { const now=new Date(); now.setHours(0,0,0,0); return d && d >= now; };
+const $ = (id) => document.getElementById(id);
 
-    const render = () => {
-      const shows = getShows();
-      const today = new Date(); today.setHours(0,0,0,0);
-      let filtered = shows.filter(s => {
-        const d=parseDate(s); const hay=[s.title,s.venue,s.price,s.ages].join(' ').toLowerCase();
-        if (search && !hay.includes(search.toLowerCase())) return false;
-        if (filter==='upcoming') return isUpcoming(d);
-        if (filter==='weekend') return isWeekend(d) && isUpcoming(d);
-        if (filter==='free') return isFree(s) && isUpcoming(d);
-        if (filter==='allages') return isAllAges(s) && isUpcoming(d);
-        if (filter==='under20') return /free|\$([0-9]|1[0-9])\b/i.test(s.price || '') && isUpcoming(d);
-        return true;
-      });
-      filtered = filtered.slice(0,50);
-      const upcoming = shows.filter(s=>isUpcoming(parseDate(s)));
-      const featured = upcoming[0];
+// ---------- Storage ----------
+// Reads/writes the shared show board via the Pages Function at /api/shows,
+// which is backed by Cloudflare KV. This path sits behind Cloudflare Access,
+// so only a logged-in admin ever reaches these calls.
+async function loadShows() {
+  $('saveNote').textContent = 'Loading saved shows…';
+  try {
+    const res = await fetch('/api/shows');
+    if (!res.ok) throw new Error('Bad response: ' + res.status);
+    shows = await res.json();
+  } catch (e) {
+    shows = [];
+    $('saveNote').textContent = 'Could not load the board. Check your connection and reload.';
+    renderGrid();
+    return;
+  }
+  $('saveNote').textContent = shows.length ? 'Board loaded.' : 'Nothing on the board yet.';
+  renderGrid();
+}
 
-      const venueCounts={};
-      upcoming.forEach(s=>{const v=(s.venue||'DIY / TBA').trim(); venueCounts[v]=(venueCounts[v]||0)+1;});
-      const venues=Object.entries(venueCounts).sort((a,b)=>b[1]-a[1]).slice(0,8);
+async function saveShows() {
+  try {
+    const res = await fetch('/api/shows', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(shows)
+    });
+    if (!res.ok) throw new Error('Bad response: ' + res.status);
+    const result = await res.json();
+    if (Array.isArray(result.shows)) shows = result.shows;
+    if (result.syncErrors && result.syncErrors.length) {
+      $('saveNote').textContent = 'Saved, but calendar sync had issues: ' + result.syncErrors.join('; ');
+    } else {
+      $('saveNote').textContent = 'Saved to the live board.';
+    }
+    renderGrid();
+  } catch (e) {
+    $('saveNote').textContent = 'Could not save, changes are only on this screen. Export as backup and try again.';
+  }
+}
 
-      const media = (s, cls='') => s && s.flyer ? `<img class="${cls}" src="${escapeHtml(s.flyer)}" alt="${escapeHtml(s.title||'Show flyer')}">` : `<span>FLYER<br>UNAVAILABLE</span>`;
-      const pills = s => `${s.price ? `<span class="scene-pill ${isFree(s)?'free':''}">${escapeHtml(s.price)}</span>`:''}${s.ages ? `<span class="scene-pill age">${escapeHtml(s.ages)}</span>`:''}${s.doors ? `<span class="scene-pill">Doors ${escapeHtml(s.doors)}</span>`:''}`;
+// ---------- Upload / drag-drop ----------
+const dropzone = $('dropzone');
+const fileInput = $('fileInput');
 
-      root.innerHTML = `
-        <div class="scene-feed">
-          ${featured ? `<article class="scene-feature">
-            <div class="scene-feature-media">${media(featured)}</div>
-            <div class="scene-feature-copy">
-              <div class="scene-eyebrow">NEXT UP / LAS VEGAS PUNX</div>
-              <div class="scene-feature-date">${escapeHtml(longDate(parseDate(featured)))}</div>
-              <h3>${escapeHtml(featured.title)}</h3>
-              <div class="scene-eyebrow">${escapeHtml(featured.venue || 'Venue TBA')}</div>
-              <div class="scene-meta">${pills(featured)}</div>
-              <div class="scene-eyebrow">CONFIRMED SHOW</div>
-            </div>
-          </article>` : ''}
+dropzone.addEventListener('click', () => fileInput.click());
+dropzone.addEventListener('dragover', (e) => { e.preventDefault(); dropzone.classList.add('drag'); });
+dropzone.addEventListener('dragleave', () => dropzone.classList.remove('drag'));
+dropzone.addEventListener('drop', (e) => {
+  e.preventDefault();
+  dropzone.classList.remove('drag');
+  if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
+});
+fileInput.addEventListener('change', (e) => {
+  if (e.target.files[0]) handleFile(e.target.files[0]);
+});
 
-          <div class="scene-toolbar">
-            <input class="scene-search" id="sceneSearch" value="${escapeHtml(search)}" placeholder="Try “punk”, “all ages”, a band, or a venue...">
-            <div class="scene-filters">
-              ${[['upcoming','Upcoming'],['weekend','This Weekend'],['allages','All Ages'],['free','Free'],['under20','Under $20'],['all','All Shows']].map(([v,l])=>`<button class="scene-filter ${filter===v?'active':''}" data-filter="${v}">${l}</button>`).join('')}
-            </div>
-            <div class="scene-count">${filtered.length} shown · ${upcoming.length} upcoming confirmed shows</div>
-          </div>
+function handleFile(file) {
+  if (!file.type.startsWith('image/')) {
+    $('loadingLine').textContent = 'That doesn\'t look like an image — try a jpg or png.';
+    $('loadingLine').classList.add('error');
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = () => {
+    const dataUrl = reader.result;
+    $('flyerImg').src = dataUrl;
+    $('previewRow').style.display = 'flex';
+    extractFlyer(dataUrl, file.type);
+  };
+  reader.readAsDataURL(file);
+}
 
-          <div class="scene-layout">
-            <div class="show-list">
-              ${filtered.length ? filtered.map(s=>`<article class="show-card">
-                <div class="show-card-media">${media(s)}</div>
-                <div class="show-card-body">
-                  <div class="show-card-date">${escapeHtml(dateLabel(parseDate(s)))}</div>
-                  <h4>${escapeHtml(s.title)}</h4>
-                  <div class="show-card-venue">${escapeHtml(s.venue || 'Venue TBA')}</div>
-                  <div class="show-card-details">${s.doors?`<span>Doors ${escapeHtml(s.doors)}</span>`:''}${s.price?`<span>${escapeHtml(s.price)}</span>`:''}${s.ages?`<span>${escapeHtml(s.ages)}</span>`:''}</div>
-                </div>
-              </article>`).join('') : `<div class="scene-empty">No shows matched that search. Try another filter, or add a show through the Show Intake.</div>`}
-              <div class="scene-note">Confirmed shows from the LV Punx Show Intake. Pending shows stay off the public feed.</div>
-            </div>
-            <aside class="venue-widget">
-              <h4>Find Your Room</h4>
-              ${venues.length ? venues.map(([v,n])=>`<div class="venue-item"><span>${escapeHtml(v)}</span><b>${n}</b></div>`).join('') : '<div class="venue-item">No venues yet</div>'}
-            </aside>
-          </div>
-        </div>`;
+// ---------- Extraction via Claude ----------
+// Calls our own /api/extract-flyer Pages Function, which holds the
+// Anthropic API key server-side and does the actual model call.
+async function extractFlyer(dataUrl, mimeType) {
+  $('loadingLine').textContent = 'Reading the flyer…';
+  $('loadingLine').classList.remove('error');
+  $('formCard').classList.add('hidden');
 
-      root.querySelectorAll('[data-filter]').forEach(btn=>btn.addEventListener('click',()=>{filter=btn.dataset.filter;render();}));
-      const input=root.querySelector('#sceneSearch');
-      input.addEventListener('input',e=>{search=e.target.value; render(); input.focus(); input.setSelectionRange(search.length,search.length);});
-    };
-    fetchShows().then(render);
-    // Re-poll every few minutes so a newly confirmed show shows up for
-    // visitors already on the page without them needing to reload.
-    setInterval(() => { fetchShows().then(render); }, 3 * 60 * 1000);
-  })();
-  </script>
+  const base64 = dataUrl.split(',')[1];
+
+  try {
+    const response = await fetch('/api/extract-flyer', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ base64, mimeType })
+    });
+
+    const parsed = await response.json();
+    if (!response.ok) throw new Error(parsed.error || 'Extraction failed.');
+
+    $('f_title').value = parsed.title || '';
+    $('f_venue').value = parsed.venue || '';
+    $('f_date').value = parsed.date || '';
+    $('f_doors').value = parsed.doors || '';
+    $('f_price').value = parsed.price || '';
+    $('f_ages').value = ['All ages', '18+', '21+'].includes(parsed.ages) ? parsed.ages : 'All ages';
+
+    if (parsed.flag) {
+      $('flagNote').textContent = '⚠ ' + parsed.flag;
+      $('flagNote').style.display = 'block';
+    } else {
+      $('flagNote').style.display = 'none';
+    }
+
+    pendingExtraction = { dataUrl };
+    $('formCard').classList.remove('hidden');
+    $('loadingLine').textContent = 'Got it, double-check the details before adding.';
+  } catch (err) {
+    $('loadingLine').textContent = 'Couldn\'t read that flyer automatically. Fill in the details by hand below.';
+    $('loadingLine').classList.add('error');
+    $('f_title').value = '';
+    $('f_venue').value = '';
+    $('f_date').value = '';
+    $('f_doors').value = '';
+    $('f_price').value = '';
+    $('f_ages').value = 'All ages';
+    $('flagNote').style.display = 'none';
+    pendingExtraction = { dataUrl };
+    $('formCard').classList.remove('hidden');
+  }
+}
+
+// ---------- Status toggle ----------
+// Removed: every entry auto-confirms on add now. See editingId / addToCalendar
+// below for how existing entries get fixed up later instead.
+
+// ---------- Add / save edits to the board ----------
+$('addToCalendar').addEventListener('click', () => {
+  const title = $('f_title').value.trim();
+  const date = $('f_date').value;
+  if (!title || !date) {
+    $('loadingLine').textContent = 'Needs at least a title and a date before it goes on the board.';
+    $('loadingLine').classList.add('error');
+    return;
+  }
+  const fields = {
+    title,
+    venue: $('f_venue').value.trim(),
+    date,
+    doors: $('f_doors').value.trim(),
+    price: $('f_price').value.trim(),
+    ages: $('f_ages').value,
+    status: 'confirmed', // everything auto-confirms now, edit later if something's wrong
+    flyer: pendingExtraction ? pendingExtraction.dataUrl : ''
+  };
+
+  if (editingId) {
+    const existing = shows.find(s => s.id === editingId);
+    if (existing) {
+      Object.assign(existing, fields);
+      // Editing a title/date/venue doesn't move the calendar event, just the
+      // board entry. If you need the calendar event itself corrected, easiest
+      // is to fix it directly in Google Calendar for now.
+    }
+  } else {
+    shows.push({ id: Date.now().toString(36), ...fields });
+  }
+
+  saveShows();
+  renderGrid();
+  exitEditMode();
+
+  $('previewRow').style.display = 'none';
+  $('flyerImg').src = '';
+  fileInput.value = '';
+  pendingExtraction = null;
+  $('loadingLine').textContent = editingId ? 'Changes saved.' : 'Added to the board.';
+  $('loadingLine').classList.remove('error');
+});
+
+$('cancelEdit').addEventListener('click', () => {
+  exitEditMode();
+  $('previewRow').style.display = 'none';
+  $('flyerImg').src = '';
+  fileInput.value = '';
+  pendingExtraction = null;
+  $('loadingLine').textContent = '';
+});
+
+function enterEditMode(show) {
+  editingId = show.id;
+  pendingExtraction = show.flyer ? { dataUrl: show.flyer } : null;
+
+  $('f_title').value = show.title || '';
+  $('f_venue').value = show.venue || '';
+  $('f_date').value = show.date || '';
+  $('f_doors').value = show.doors || '';
+  $('f_price').value = show.price || '';
+  $('f_ages').value = ['All ages', '18+', '21+'].includes(show.ages) ? show.ages : 'All ages';
+  $('flagNote').style.display = 'none';
+
+  $('flyerImg').src = show.flyer || '';
+  $('previewRow').style.display = show.flyer ? 'flex' : 'none';
+  $('formCard').classList.remove('hidden');
+  $('addToCalendar').textContent = 'Save Changes ↓';
+  $('cancelEdit').style.display = 'inline-block';
+  $('loadingLine').textContent = 'Editing "' + (show.title || 'this show') + '". Update the fields and save.';
+  $('loadingLine').classList.remove('error');
+
+  $('formCard').scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function exitEditMode() {
+  editingId = null;
+  $('addToCalendar').textContent = 'Add To Board ↓';
+  $('cancelEdit').style.display = 'none';
+}
+
+// ---------- Filters ----------
+document.querySelectorAll('.chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+    chip.classList.add('active');
+    currentFilter = chip.dataset.filter;
+    renderGrid();
+  });
+});
+
+function isTonight(dateStr) {
+  const today = new Date();
+  const d = new Date(dateStr + 'T00:00:00');
+  return d.toDateString() === today.toDateString();
+}
+function isThisWeekend(dateStr) {
+  const d = new Date(dateStr + 'T00:00:00');
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  const diffDays = Math.round((d - today) / 86400000);
+  if (diffDays < 0 || diffDays > 7) return false;
+  const day = d.getDay(); // 0 Sun .. 6 Sat
+  return day === 5 || day === 6 || day === 0;
+}
+
+function filteredShows() {
+  return shows
+    .slice()
+    .sort((a,b) => a.date.localeCompare(b.date))
+    .filter(s => {
+      if (currentFilter === 'tonight') return isTonight(s.date);
+      if (currentFilter === 'weekend') return isThisWeekend(s.date);
+      if (currentFilter === 'free') return /free/i.test(s.price) || s.price === '';
+      if (currentFilter === 'allages') return s.ages === 'All ages';
+      return true;
+    });
+}
+
+function renderGrid() {
+  const grid = $('grid');
+  const list = filteredShows();
+  grid.innerHTML = '';
+  $('emptyMsg').style.display = list.length ? 'none' : 'block';
+
+  list.forEach(s => {
+    const card = document.createElement('div');
+    card.className = 'card';
+
+    const dateLabel = s.date ? new Date(s.date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', weekday: 'short' }) : '';
+
+    card.innerHTML = `
+      ${s.flyer ? `<img class="thumb" src="${s.flyer}" alt="${s.title} flyer">` : ''}
+      <div class="body">
+        <h3>${escapeHtml(s.title)}</h3>
+        <div class="meta">${escapeHtml(s.venue || 'Venue TBD')}</div>
+        <div class="meta">${dateLabel}${s.doors ? ' · Doors ' + escapeHtml(s.doors) : ''}</div>
+        <div class="tags">
+          ${s.price ? `<span class="tag ${/free/i.test(s.price) ? 'free' : ''}">${escapeHtml(s.price)}</span>` : ''}
+          <span class="tag ages">${escapeHtml(s.ages)}</span>
+        </div>
+      </div>
+      <div class="card-actions">
+        <div class="edit" data-id="${s.id}">Edit</div>
+        <div class="remove" data-id="${s.id}">Remove</div>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+
+  document.querySelectorAll('.edit').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const show = shows.find(s => s.id === btn.dataset.id);
+      if (show) enterEditMode(show);
+    });
+  });
+
+  document.querySelectorAll('.remove').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (btn.dataset.id === editingId) exitEditMode();
+      shows = shows.filter(s => s.id !== btn.dataset.id);
+      saveShows();
+      renderGrid();
+    });
+  });
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+// ---------- Export / reset ----------
+$('exportBtn').addEventListener('click', () => {
+  const exportData = shows.map(({flyer, ...rest}) => rest); // drop base64 flyers from export, keep data light
+  const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'lvpunx-shows.json';
+  a.click();
+  URL.revokeObjectURL(url);
+});
+
+$('resetBtn').addEventListener('click', async () => {
+  if (!confirm('Clear every show on the board? This can\'t be undone.')) return;
+  shows = [];
+  await saveShows();
+  renderGrid();
+});
+
+// ---------- Init ----------
+loadShows();
+</script>
 </body>
 </html>
