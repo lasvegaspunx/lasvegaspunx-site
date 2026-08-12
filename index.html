@@ -500,6 +500,32 @@
   /* ==================== SCENE FEED WIDGETS ==================== */
   .public-calendar { background: var(--white); color: var(--black); min-height: 300px; padding: 18px; }
   .scene-feed { max-width: 1200px; margin: 0 auto; }
+  .scene-feature-carousel { position: relative; overflow: hidden; margin-bottom: 24px; }
+  .scene-feature-track { display: flex; transition: transform 0.5s ease; }
+  .scene-feature-track .scene-feature { flex: 0 0 100%; margin-bottom: 0; }
+  .carousel-arrow {
+    position: absolute; top: 50%; transform: translateY(-50%);
+    width: 40px; height: 40px;
+    background: var(--black); color: var(--white);
+    border: 2px solid var(--white);
+    font-size: 22px; line-height: 1;
+    cursor: pointer; z-index: 2;
+  }
+  .carousel-arrow:hover { background: var(--orange); color: var(--black); }
+  .carousel-arrow.prev { left: 10px; }
+  .carousel-arrow.next { right: 10px; }
+  .carousel-dots {
+    position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%);
+    display: flex; gap: 7px; z-index: 2;
+  }
+  .carousel-dot {
+    width: 9px; height: 9px; border-radius: 50%;
+    background: rgba(255,255,255,0.5);
+    border: 1px solid var(--black);
+    cursor: pointer;
+  }
+  .carousel-dot.active { background: var(--lime); }
+
   .scene-feature { display:grid; grid-template-columns:minmax(220px, .8fr) 1.2fr; border:4px solid var(--black); box-shadow:8px 8px 0 var(--orange); margin-bottom:24px; background:var(--paper); }
   .scene-feature, .show-card { cursor: zoom-in; }
   .flyer-lightbox {
@@ -711,6 +737,7 @@
     let filter = 'upcoming';
     let search = '';
     let venueFilter = null; // null = no venue narrowing, otherwise a venue name string
+    let featuredIndex = 0; // which slide of the "Next Up" carousel is showing
     let cachedShows = [];
 
     // ---- Flyer lightbox ----
@@ -819,7 +846,8 @@
       if (filter==='archive') filtered = filtered.slice().reverse(); // most recently passed first
       filtered = filtered.slice(0,50);
       const upcoming = shows.filter(s=>isUpcoming(parseDate(s)));
-      const featured = upcoming[0];
+      const featuredList = upcoming.slice(0,6);
+      if (featuredIndex >= featuredList.length) featuredIndex = 0; // clamp if the list shrank
 
       const venueCounts={};
       upcoming.forEach(s=>{const v=(s.venue||'DIY / TBA').trim(); venueCounts[v]=(venueCounts[v]||0)+1;});
@@ -830,17 +858,26 @@
 
       root.innerHTML = `
         <div class="scene-feed">
-          ${featured ? `<article class="scene-feature">
-            <div class="scene-feature-media">${media(featured)}</div>
-            <div class="scene-feature-copy">
-              <div class="scene-eyebrow">NEXT UP / LAS VEGAS PUNX</div>
-              <div class="scene-feature-date">${escapeHtml(longDate(parseDate(featured)))}</div>
-              <h3>${escapeHtml(featured.title)}</h3>
-              <div class="scene-eyebrow">${escapeHtml(featured.venue || 'Venue TBA')}</div>
-              <div class="scene-meta">${pills(featured)}</div>
-              <div class="scene-eyebrow">CONFIRMED SHOW</div>
+          ${featuredList.length ? `<div class="scene-feature-carousel">
+            <div class="scene-feature-track" style="transform: translateX(-${featuredIndex * 100}%);">
+              ${featuredList.map(f => `<article class="scene-feature">
+                <div class="scene-feature-media">${media(f)}</div>
+                <div class="scene-feature-copy">
+                  <div class="scene-eyebrow">NEXT UP / LAS VEGAS PUNX</div>
+                  <div class="scene-feature-date">${escapeHtml(longDate(parseDate(f)))}</div>
+                  <h3>${escapeHtml(f.title)}</h3>
+                  <div class="scene-eyebrow">${escapeHtml(f.venue || 'Venue TBA')}</div>
+                  <div class="scene-meta">${pills(f)}</div>
+                  <div class="scene-eyebrow">CONFIRMED SHOW</div>
+                </div>
+              </article>`).join('')}
             </div>
-          </article>` : ''}
+            ${featuredList.length > 1 ? `
+              <button class="carousel-arrow prev" data-carousel="prev" aria-label="Previous">&#8249;</button>
+              <button class="carousel-arrow next" data-carousel="next" aria-label="Next">&#8250;</button>
+              <div class="carousel-dots">${featuredList.map((_,i)=>`<span class="carousel-dot ${i===featuredIndex?'active':''}" data-carousel-dot="${i}"></span>`).join('')}</div>
+            ` : ''}
+          </div>` : ''}
 
           <div class="scene-toolbar">
             <input class="scene-search" id="sceneSearch" value="${escapeHtml(search)}" placeholder="Try searching “all ages”, a band, or a venue...">
@@ -874,6 +911,20 @@
       root.querySelectorAll('[data-filter]').forEach(btn=>btn.addEventListener('click',()=>{filter=btn.dataset.filter;render();}));
       root.querySelectorAll('[data-venue]').forEach(el=>el.addEventListener('click',()=>{
         venueFilter = el.dataset.venue || null; // empty string on the "All" row means clear it
+        render();
+      }));
+      const prevBtn = root.querySelector('[data-carousel="prev"]');
+      const nextBtn = root.querySelector('[data-carousel="next"]');
+      if (prevBtn) prevBtn.addEventListener('click', () => {
+        featuredIndex = (featuredIndex - 1 + featuredList.length) % featuredList.length;
+        render();
+      });
+      if (nextBtn) nextBtn.addEventListener('click', () => {
+        featuredIndex = (featuredIndex + 1) % featuredList.length;
+        render();
+      });
+      root.querySelectorAll('[data-carousel-dot]').forEach(dot=>dot.addEventListener('click',()=>{
+        featuredIndex = Number(dot.dataset.carouselDot);
         render();
       }));
       const input=root.querySelector('#sceneSearch');
