@@ -436,7 +436,7 @@ function handleFile(file) {
 }
 
 // ---------- Extraction via Claude ----------
-// Calls our own /api/admin/read-flyer Pages Function, which holds the
+// Calls our own /api/admin/flyer-reader Pages Function, which holds the
 // Anthropic API key server-side and does the actual model call.
 async function extractFlyer(dataUrl, mimeType) {
   $('loadingLine').textContent = 'Reading the flyer…';
@@ -446,7 +446,7 @@ async function extractFlyer(dataUrl, mimeType) {
   const base64 = dataUrl.split(',')[1];
 
   try {
-    const response = await fetch('/api/admin/read-flyer', {
+    const response = await fetch('/api/admin/flyer-reader', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ base64, mimeType })
