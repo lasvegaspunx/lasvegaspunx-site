@@ -367,8 +367,8 @@ async function saveShows() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(shows)
     });
-    if (!res.ok) throw new Error('Bad response: ' + res.status);
-    const result = await res.json();
+    const result = await res.json().catch(() => null);
+    if (!res.ok) throw new Error((result && result.error) || ('Bad response: ' + res.status));
     if (Array.isArray(result.shows)) {
       // Merge server-computed fields (like calendarEventId) back onto matching
       // local shows by id, rather than replacing the whole array. A wholesale
@@ -380,14 +380,15 @@ async function saveShows() {
       shows = shows.map(s => byId.has(s.id) ? { ...s, ...byId.get(s.id) } : s);
     }
     writeCache(shows);
-    if (result.syncErrors && result.syncErrors.length) {
-      $('saveNote').textContent = 'Saved, but calendar sync had issues: ' + result.syncErrors.join('; ');
+    const issues = [...(result.syncErrors || []), ...(result.flyerErrors || [])];
+    if (issues.length) {
+      $('saveNote').textContent = 'Saved, but with issues: ' + issues.join('; ');
     } else {
       $('saveNote').textContent = 'Saved to the live board.';
     }
     renderGrid();
   } catch (e) {
-    $('saveNote').textContent = 'Could not save, changes are only on this screen. Export as backup and try again.';
+    $('saveNote').textContent = 'Could not save: ' + e.message + '. Export as backup if this keeps happening.';
   }
 }
 
