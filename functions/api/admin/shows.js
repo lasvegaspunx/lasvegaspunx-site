@@ -16,16 +16,14 @@
 // If those aren't configured, saving still works fine, calendar sync is just
 // skipped silently.
 //
-// Flyer images: Cloudflare KV caps any single value at 25MB. Storing every
-// flyer's full base64 image inline inside the one "shows-list" blob meant
-// that blob could eventually hit that cap as more flyers piled up, and once
-// it did, this whole write would fail silently (no error surfaced to the
-// admin tool, the show just wouldn't actually be there on the next load).
-// To avoid that, each flyer image now gets stored under its own KV key
-// (flyer:<id>) instead, and the show record just holds a reference URL
-// (/api/flyer?id=<id>) that a separate public endpoint serves the image from.
-// This keeps the shows-list blob itself small no matter how many flyers
-// pile up over time.
+// Flyer images: stored separately from the show record, each under its own
+// KV key (flyer:<id>), so the "shows-list" blob itself stays small
+// regardless of how many flyers accumulate over time (KV caps any single
+// value at 25MB; this keeps the whole board well under that indefinitely).
+// The show record just holds a reference URL (/api/flyer?id=<id>) that
+// functions/api/flyer.js serves the actual image bytes from on request.
+// New flyers also get resized/compressed client-side before upload (see
+// admin/index.html), so each individual image stays small too.
 //
 // Requires a KV namespace bound as `SHOWS`.
 
@@ -46,30 +44,19 @@ export async function onRequestPost(context) {
 
   // Move any freshly-uploaded flyer (still a raw data: URL at this point)
   // out into its own KV entry, and swap the show's flyer field for a
-  // reference URL instead. Flyers that were already moved on a previous
-  // save (flyer field is already a /api/flyer?id=... URL, not a data: URL)
-  // are left alone, no need to re-store something that's already stored.
+  // reference URL instead. Flyers already stored this way from a previous
+  // save (flyer field is already a /api/flyer?id=... URL) are left alone.
   const flyerErrors = [];
   for (const show of shows) {
-    // Shows saved during the brief window this used a /api/flyer/<id> path
-    // style URL (before that dynamic route turned out not to work at all)
-    // just need their reference relabeled, the image itself is already
-    // sitting under the same flyer:<id> KV key either way.
-    if (show.flyer && show.flyer.startsWith('/api/flyer/')) {
-      show.flyer = '/api/flyer?id=' + show.id;
-    }
     if (show.flyer && show.flyer.startsWith('data:')) {
       try {
         await context.env.SHOWS.put('flyer:' + show.id, show.flyer);
         show.flyer = '/api/flyer?id=' + show.id;
       } catch (e) {
-        // Important: do NOT touch show.flyer here. Leave the original inline
-        // data: URL exactly as it was, that's what was previously wiping out
-        // pictures whenever this storage step failed, the image would still
-        // have worked fine the old inline way, but got blanked out instead.
-        // Leaving it alone means a failed migration just falls back to the
-        // old (working, if larger) behavior for that one show, rather than
-        // losing the picture entirely.
+        // Do NOT blank out show.flyer here, leave the original inline
+        // data: URL exactly as it was. A failed migration just falls back
+        // to the old (working, if larger) inline behavior for that one
+        // show, rather than losing the picture entirely.
         flyerErrors.push(`${show.title || 'Untitled show'}: could not move flyer to separate storage (${e.message}), kept the original inline image instead.`);
       }
     }
@@ -104,12 +91,9 @@ export async function onRequestPost(context) {
   try {
     await context.env.SHOWS.put(KV_KEY, JSON.stringify(shows));
   } catch (e) {
-    // This used to throw uncaught, which Cloudflare turns into a generic
-    // HTML 502 page, the admin tool would just see a failed fetch with no
-    // useful explanation. Now it comes back as a clear JSON error instead.
     return new Response(JSON.stringify({
       ok: false,
-      error: 'Could not save the show list: ' + e.message + '. If this mentions size, the show list itself is too large, moving flyers to their own storage (done above) should prevent this going forward, but a genuinely huge board could still hit it.'
+      error: 'Could not save the show list: ' + e.message
     }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' }
