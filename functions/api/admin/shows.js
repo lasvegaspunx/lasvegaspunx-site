@@ -23,7 +23,7 @@
 // admin tool, the show just wouldn't actually be there on the next load).
 // To avoid that, each flyer image now gets stored under its own KV key
 // (flyer:<id>) instead, and the show record just holds a reference URL
-// (/api/flyer/<id>) that a separate public endpoint serves the image from.
+// (/api/flyer?id=<id>) that a separate public endpoint serves the image from.
 // This keeps the shows-list blob itself small no matter how many flyers
 // pile up over time.
 //
@@ -47,14 +47,21 @@ export async function onRequestPost(context) {
   // Move any freshly-uploaded flyer (still a raw data: URL at this point)
   // out into its own KV entry, and swap the show's flyer field for a
   // reference URL instead. Flyers that were already moved on a previous
-  // save (flyer field already starts with /api/flyer/) are left alone,
-  // no need to re-store something that's already stored.
+  // save (flyer field is already a /api/flyer?id=... URL, not a data: URL)
+  // are left alone, no need to re-store something that's already stored.
   const flyerErrors = [];
   for (const show of shows) {
+    // Shows saved during the brief window this used a /api/flyer/<id> path
+    // style URL (before that dynamic route turned out not to work at all)
+    // just need their reference relabeled, the image itself is already
+    // sitting under the same flyer:<id> KV key either way.
+    if (show.flyer && show.flyer.startsWith('/api/flyer/')) {
+      show.flyer = '/api/flyer?id=' + show.id;
+    }
     if (show.flyer && show.flyer.startsWith('data:')) {
       try {
         await context.env.SHOWS.put('flyer:' + show.id, show.flyer);
-        show.flyer = '/api/flyer/' + show.id;
+        show.flyer = '/api/flyer?id=' + show.id;
       } catch (e) {
         // Important: do NOT touch show.flyer here. Leave the original inline
         // data: URL exactly as it was, that's what was previously wiping out
