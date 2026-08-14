@@ -56,8 +56,14 @@ export async function onRequestPost(context) {
         await context.env.SHOWS.put('flyer:' + show.id, show.flyer);
         show.flyer = '/api/flyer/' + show.id;
       } catch (e) {
-        flyerErrors.push(`${show.title || 'Untitled show'}: could not store flyer image (${e.message})`);
-        show.flyer = ''; // don't leave a giant data URL sitting in the list blob if storing it separately failed
+        // Important: do NOT touch show.flyer here. Leave the original inline
+        // data: URL exactly as it was, that's what was previously wiping out
+        // pictures whenever this storage step failed, the image would still
+        // have worked fine the old inline way, but got blanked out instead.
+        // Leaving it alone means a failed migration just falls back to the
+        // old (working, if larger) behavior for that one show, rather than
+        // losing the picture entirely.
+        flyerErrors.push(`${show.title || 'Untitled show'}: could not move flyer to separate storage (${e.message}), kept the original inline image instead.`);
       }
     }
   }
