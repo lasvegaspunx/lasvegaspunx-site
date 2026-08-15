@@ -970,6 +970,25 @@
         featuredIndex = Number(dot.dataset.carouselDot);
         render();
       }));
+      // All carousel slides sit side-by-side in one flex row and are shown
+      // one at a time via translateX, so the row's own height defaults to
+      // whichever slide is tallest overall -- a short-lineup show would
+      // otherwise inherit a huge card's leftover blank space. Pin the
+      // track's height to just the active slide instead, and re-measure
+      // once its flyer image finishes loading (images load async and
+      // change the slide's real height after this first pass).
+      const trackEl = root.querySelector('.scene-feature-track');
+      if (trackEl) {
+        const fitTrackHeight = () => {
+          const active = trackEl.children[featuredIndex];
+          if (active) trackEl.style.height = active.offsetHeight + 'px';
+        };
+        fitTrackHeight();
+        trackEl.querySelectorAll('img').forEach(img => {
+          if (img.complete) return;
+          img.addEventListener('load', fitTrackHeight, { once: true });
+        });
+      }
       const input=root.querySelector('#sceneSearch');
       input.addEventListener('input',e=>{
         search=e.target.value;
