@@ -612,7 +612,7 @@
   .page-indicator { font-family:'Anton',sans-serif; font-size:12px; text-transform:uppercase; letter-spacing:.05em; }
   .scene-note { font-size:10px; opacity:.55; margin-top:15px; text-align:right; }
   /* ==================== RESPONSIVE ==================== */
-  @media (max-width: 600px) {
+  @media (max-width: 1024px) {
     section { padding: 40px 16px; }
     .week-card { padding: 20px; box-shadow: 4px 4px 0 var(--orange); }
     .scene-layout { grid-template-columns:1fr; } .venue-widget { position:static; } .scene-feature { grid-template-columns:1fr; } .scene-feature-media { min-height:220px; } .scene-feature-copy { padding:16px; justify-content:flex-start; } .show-card { grid-template-columns:85px 1fr; } .show-card-media { min-height:125px; }
@@ -876,6 +876,15 @@
 
       const media = (s, cls='') => s && s.flyer ? `<img class="${cls}" src="${escapeHtml(s.flyer)}" alt="${escapeHtml(s.title||'Show flyer')}">` : `<span>FLYER<br>UNAVAILABLE</span>`;
       const pills = s => `${s.price ? `<span class="scene-pill ${isFree(s)?'free':''}">${escapeHtml(s.price)}</span>`:''}${s.ages ? `<span class="scene-pill age">${escapeHtml(s.ages)}</span>`:''}${s.doors ? `<span class="scene-pill">Doors ${escapeHtml(s.doors)}</span>`:''}`;
+      // On phones and tablets the title has to share cramped width with a
+      // stacked photo, so long lineups need to shrink further than short
+      // ones do -- same idea as the flyer image scaling to fit its box.
+      const titleSize = title => {
+        if (window.innerWidth > 1024) return '';
+        const len = title.length;
+        const px = len > 160 ? 15 : len > 110 ? 17 : len > 70 ? 19 : len > 40 ? 22 : 26;
+        return ` style="font-size:${px}px"`;
+      };
 
       root.innerHTML = `
         <div class="scene-feed">
@@ -886,7 +895,7 @@
                 <div class="scene-feature-copy">
                   <div class="scene-eyebrow">NEXT UP</div>
                   <div class="scene-feature-date">${escapeHtml(longDate(parseDate(f)))}</div>
-                  <h3>${escapeHtml(f.title)}</h3>
+                  <h3${titleSize(f.title)}>${escapeHtml(f.title)}</h3>
                   <div class="scene-eyebrow">${escapeHtml(f.venue || 'Venue TBA')}</div>
                   <div class="scene-meta">${pills(f)}</div>
                   <div class="scene-eyebrow">CONFIRMED SHOW</div>
