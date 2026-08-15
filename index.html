@@ -615,7 +615,7 @@
   @media (max-width: 600px) {
     section { padding: 40px 16px; }
     .week-card { padding: 20px; box-shadow: 4px 4px 0 var(--orange); }
-    .scene-layout { grid-template-columns:1fr; } .venue-widget { position:static; } .scene-feature { grid-template-columns:1fr; } .scene-feature-media { min-height:220px; } .show-card { grid-template-columns:85px 1fr; } .show-card-media { min-height:125px; }
+    .scene-layout { grid-template-columns:1fr; } .venue-widget { position:static; } .scene-feature { grid-template-columns:1fr; } .scene-feature-media { min-height:220px; } .scene-feature-copy { padding:14px 16px; } .show-card { grid-template-columns:85px 1fr; } .show-card-media { min-height:125px; }
     nav { padding: 10px 8px; }
     nav a {
       font-size: 12px;
@@ -641,7 +641,7 @@
 <!-- ==================== NAV ==================== -->
 <nav>
   <a href="#about">About</a>
-  <a href="#this-week">This Week</a>
+  <a href="#this-week">Upcoming Shows</a>
   <a href="#calendar">Calendar</a>
   <a href="#submit">Add A Show</a>
   <a href="#instagram">Instagram</a>
@@ -673,7 +673,7 @@
 <!-- ==================== THIS WEEK ==================== -->
 <section id="this-week">
   <div class="section-header">
-    <h2>This Week</h2>
+    <h2>Upcoming Shows</h2>
   </div>
   <div class="calendar-wrap">
     <div id="lvpunx-public-calendar" class="public-calendar">
@@ -747,8 +747,8 @@
     let filter = 'upcoming';
     let search = '';
     let venueFilter = null; // null = no venue narrowing, otherwise a venue name string
-    let currentPage = 0; // which page of the show list is showing, 5 per page
-    const PAGE_SIZE = 5;
+    let currentPage = 0; // which page of the show list is showing, 10 per page
+    const PAGE_SIZE = 10;
     let featuredIndex = 0; // which slide of the "Next Up" carousel is showing
     let cachedShows = [];
 
@@ -897,13 +897,13 @@
           <div class="scene-toolbar">
             <input class="scene-search" id="sceneSearch" value="${escapeHtml(search)}" placeholder="Try searching “all ages”, a band, or a venue...">
             <div class="scene-filters">
-              ${[['upcoming','Upcoming This Week'],['weekend','This Weekend'],['allages','All Ages'],['free','Free'],['under20','Under $20'],['all','All Upcoming Shows'],['archive','Archive']].map(([v,l])=>`<button class="scene-filter ${filter===v?'active':''}" data-filter="${v}">${l}</button>`).join('')}
+              ${[['upcoming','This Week'],['weekend','This Weekend'],['allages','All Ages'],['free','Free'],['under20','Under $20'],['all','All Upcoming Shows'],['archive','Archive']].map(([v,l])=>`<button class="scene-filter ${filter===v?'active':''}" data-filter="${v}">${l}</button>`).join('')}
             </div>
             <div class="scene-count">${filtered.length} shows found · ${upcoming.length} upcoming confirmed shows</div>
           </div>
 
           <div class="scene-layout">
-            <div class="show-list">
+            <div class="show-list" id="showList">
               ${pageItems.length ? pageItems.map(s=>`<article class="show-card">
                 <div class="show-card-media">${media(s)}</div>
                 <div class="show-card-body">
@@ -938,6 +938,8 @@
         if (btn.disabled) return;
         currentPage += btn.dataset.page === 'next' ? 1 : -1;
         render();
+        const list = root.querySelector('#showList');
+        if (list) list.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }));
       const prevBtn = root.querySelector('[data-carousel="prev"]');
       const nextBtn = root.querySelector('[data-carousel="next"]');
