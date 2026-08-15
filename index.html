@@ -980,7 +980,13 @@
       if (trackEl) {
         const fitTrackHeight = () => {
           const active = trackEl.children[featuredIndex];
-          if (active) trackEl.style.height = active.offsetHeight + 'px';
+          if (!active) return;
+          // The prev/next arrows are absolutely positioned near the
+          // bottom of this box, so on mobile (where they end up sitting
+          // right under the copy text) leave a little clearance below
+          // the content instead of letting the arrows sit flush on it.
+          const arrowClearance = window.innerWidth <= 1024 ? 40 : 0;
+          trackEl.style.height = (active.offsetHeight + arrowClearance) + 'px';
         };
         fitTrackHeight();
         trackEl.querySelectorAll('img').forEach(img => {
