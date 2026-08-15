@@ -615,7 +615,7 @@
   @media (max-width: 600px) {
     section { padding: 40px 16px; }
     .week-card { padding: 20px; box-shadow: 4px 4px 0 var(--orange); }
-    .scene-layout { grid-template-columns:1fr; } .venue-widget { position:static; } .scene-feature { grid-template-columns:1fr; } .scene-feature-media { min-height:220px; } .show-card { grid-template-columns:85px 1fr; } .show-card-media { min-height:125px; }
+    .scene-layout { grid-template-columns:1fr; } .venue-widget { position:static; } .scene-feature { grid-template-columns:1fr; } .scene-feature-media { min-height:220px; } .scene-feature-copy { padding:16px; justify-content:flex-start; } .show-card { grid-template-columns:85px 1fr; } .show-card-media { min-height:125px; }
     nav { padding: 10px 8px; }
     nav a {
       font-size: 12px;
@@ -921,7 +921,7 @@
               <div class="scene-note">Confirmed shows from the LV Punx Show Intake. Pending shows stay off the public feed.</div>
             </div>
             <aside class="venue-widget">
-              <h4>Find Your Venue</h4>
+              <h4>Filter By Venue</h4>
               ${venues.length ? venues.map(([v,n])=>`<div class="venue-item ${venueFilter===v?'active':''}" data-venue="${escapeHtml(v)}"><span>${escapeHtml(v)}</span><b>${n}</b></div>`).join('') : '<div class="venue-item">No venues yet</div>'}
               <div class="venue-item venue-item-all ${venueFilter===null?'active':''}" data-venue="">All</div>
             </aside>
